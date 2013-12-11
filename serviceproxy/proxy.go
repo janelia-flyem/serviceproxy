@@ -28,7 +28,7 @@ func (proxy *ServiceProxy) Run() (error) {
     ui := &cli.BasicUi{Writer: writer} 
     ac := &agent.Command{Ui: ui, ShutdownCh: make(chan struct{}),}
     var dargs []string
-    dargs = append(dargs, "-node=proxy."+strconv.Itoa(proxy.Port))
+    dargs = append(dargs, "-node=proxy#"+defaultAddr+":"+strconv.Itoa(proxy.Port))
     
     hname, _ := os.Hostname()
     addrs, _ := net.LookupHost(hname)

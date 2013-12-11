@@ -90,27 +90,32 @@ func (r *Registry) updateRegistry() (error) {
     r.services = make(map[string]*Service)    
     for _, member := range mems {
         fields := strings.Fields(member)
-        serviceport := strings.Split(fields[0], ".")
+        serviceport := strings.Split(fields[0], "#")
         
-        // there should be no periods in the name
+        // there should be no hash marks int the name
         service_name := serviceport[0]
         if service_name == "proxy" {
             continue
         }
-        
-        if len(serviceport) == 1 {
+       
+        if len(serviceport) != 2 {
             fmt.Errorf("service name incorrectly formatted: %s ", serviceport)
             continue
         }
-        port_name := serviceport[len(serviceport)-1]        
-
+        complete_address_name := serviceport[1]        
+        service_address := strings.Split(complete_address_name, ":")
+        
         if len(fields) != 3 {
             fmt.Errorf("incorrect number of fields for service")
             continue
         }
         address_fields := strings.Split(fields[1], ":")
-        address_name := address_fields[0] 
-        complete_address_name := address_name + ":" + port_name
+        serf_address := address_fields[0]
+
+        if serf_address != service_address[0] {
+            fmt.Errorf("Service address does not match serf agent address: %s\n", service_name)
+            continue
+        } 
 
         _, ok := r.services[service_name] 
         var service *Service
