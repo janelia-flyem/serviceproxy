@@ -1,18 +1,18 @@
 package main
 
 import (
-    "flag"
-    "fmt"
-    "os"
-    "github.com/janelia-flyem/serviceproxy/serviceproxy"
+	"flag"
+	"fmt"
+	"github.com/janelia-flyem/serviceproxy/serviceproxy"
+	"os"
 )
 
 const defaultPort = 15333
 
 var (
-    showHelp = flag.Bool("help", false, "")
-    portNum = flag.Int("port", defaultPort, "")
-    debugSerf = flag.Bool("debug", false, "")
+	showHelp  = flag.Bool("help", false, "")
+	portNum   = flag.Int("port", defaultPort, "")
+	debugSerf = flag.Bool("debug", false, "")
 )
 
 const helpMessage = `
@@ -25,16 +25,14 @@ Usage: serviceproxy
 `
 
 func main() {
-    flag.BoolVar(showHelp, "h", false, "Show help message")
-    flag.Parse()
+	flag.BoolVar(showHelp, "h", false, "Show help message")
+	flag.Parse()
 
-    if *showHelp {
-        fmt.Printf(helpMessage)
-        os.Exit(0)
-    }
+	if *showHelp {
+		fmt.Printf(helpMessage)
+		os.Exit(0)
+	}
 
-    proxy := serviceproxy.ServiceProxy{Port: *portNum, Debug: *debugSerf}
-    proxy.Run()
+	proxy := serviceproxy.ServiceProxy{Port: *portNum, Debug: *debugSerf}
+	proxy.Run()
 }
-
-
