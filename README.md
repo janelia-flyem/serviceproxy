@@ -17,8 +17,8 @@ To launch the server:
 
 This will start a web server at the given port on the current
 machine.  The command will return the registry address that should
-be used for clients to register their service.  This is not the same
-as the web address hosting the proxy.
+be used for clients to register their service.  The address is the same
+as the web address hosting the proxy but the port is different.
 
 To see the supported REST interface, navigate to
 "127.0.0.1:WEBPORT/interface".  This will return an interface

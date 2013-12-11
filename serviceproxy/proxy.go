@@ -9,7 +9,10 @@ import (
     "io/ioutil"
     "syscall"
     "strconv"
+    "net"
 )
+
+const defaultPort = 7946
 
 type ServiceProxy struct {
     Port int
@@ -26,8 +29,18 @@ func (proxy *ServiceProxy) Run() (error) {
     ac := &agent.Command{Ui: ui, ShutdownCh: make(chan struct{}),}
     var dargs []string
     dargs = append(dargs, "-node=proxy."+strconv.Itoa(proxy.Port))
-    go ac.Run(dargs)
     
+    hname, _ := os.Hostname()
+    addrs, _ := net.LookupHost(hname)
+
+    serfaddr := addrs[1] + ":" + strconv.Itoa(defaultPort)
+    dargs = append(dargs, "-bind="+serfaddr)
+    go ac.Run(dargs)
+   
+    // address for clients to register (port does not need to be specified
+    // by the client if using the Go register interface)  
+    fmt.Printf("Registry address: %s\n", serfaddr)    
+
     // exit server if user presses Ctrl-C 
     go func () {
         sigch := make(chan os.Signal)
