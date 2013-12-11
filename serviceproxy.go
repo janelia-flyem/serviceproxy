@@ -4,7 +4,7 @@ import (
     "flag"
     "fmt"
     "os"
-    "github.com/stephenplaza/serviceproxy/serviceproxy"
+    "github.com/janelia-flyem/serviceproxy/serviceproxy"
 )
 
 const defaultPort = 15333
