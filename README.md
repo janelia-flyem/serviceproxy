@@ -4,7 +4,9 @@ This go package provides a server that registers different services that
 connect to it using the [serf](https://github.com/hashicorp/serf)
 package.  The server provides the locations
 of these services and can also act as the proxy between clients and the
-servers by routing service requests.
+servers by routing service requests (currently serviceproxy will only
+redirect service calls to the appropriate address rather than act as
+the intermediary).
 
 ##Installing and Usage
 To install:
@@ -29,19 +31,27 @@ specification in [RAML](http://raml.org) format.
 To make service discoverable, it must launch a serf agent that
 contains the name of the service and its location on the network.
 
-We provide a utility in Go to register a service (TBD).  First,
+A service can be registered by calling the included go utility "registerservice" (TBD).
+To register a service called "foo" on port "15555" to the
+the registry address (ADDR), call the following on the machine the service is running on:
+    
+    % registerservice foo 15555 ADDR
+
+If the -addr option is specified, one can specify the node address that will be running
+the service.
+
+We also provide a utility in Go to register a service (TBD).  First,
 import the register package:
 
     import "github.com/janelia-flyem/serviceproxy/register"
 
-To register a service called "foo" on port "15555" to the
-the registry address (ADDR), call:
+To register a service call:
 
     register.RegisterService("foo", 15555, ADDR)
 
-Non-Go services running on address ip address (IP) can easily
-register with the serviceproxy by creating a serf
-agent on the command-line:
+In theory, service registration can also be done directly by creating
+a serf agent on the command using the following particular formatting
+(where IP is the IP address of the service):
 
     % serf agent -node=foo#IP:15555 -port=ADDR
 
@@ -56,10 +66,9 @@ define appropriate JSON schemas.
 
 ##TODO
 
-* Add interface for showing interface
-* Add interface for passing requests through to servers
 * Add register package to allow clients to easily register services
 * Make an example client service
 * Add documentation, comments, testing
-* Support service state or other status?
+* Setup proxy server to communicate between client and service rather than just redirect
+* Support caching mechanisms
 
