@@ -116,12 +116,27 @@ func (r *Registry) updateRegistry() error {
 	return nil
 }
 
-func (r *Registry) getServicesString() string {
-	service_str := ""
+func (r *Registry) getServicesSlice() []string {
+	var services []string
 	for key, _ := range r.services {
-		service_str = service_str + key + "\n"
+	        services = append(services, key)	
 	}
 
-	return service_str
+	return services
 }
+
+func (r* Registry) getServiceAddr(service string) (string, error) {
+        var err error
+        _, ok := r.services[service]
+        addr := ""
+        if ok {
+                serviceInfo := r.services[service]
+                addr, err = serviceInfo.getAddress()
+        } else {
+                err = fmt.Errorf("Service not in registry: " + service)
+        }
+
+        return addr, err
+}
+
 

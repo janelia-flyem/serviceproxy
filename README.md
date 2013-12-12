@@ -56,7 +56,6 @@ define appropriate JSON schemas.
 
 ##TODO
 
-* Add interface for getting addresses (use json format)
 * Add interface for getting nodes
 * Add interface for showing interface
 * Add interface for passing requests through to servers
