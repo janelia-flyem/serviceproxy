@@ -15,7 +15,7 @@ type Service struct {
 	name string
 
 	// ip and port that host service
-	addresses []string
+	Addresses []string
 }
 
 func NewService(name string) *Service {
@@ -23,15 +23,15 @@ func NewService(name string) *Service {
 }
 
 func (s *Service) addAddress(addr string) error {
-	s.addresses = append(s.addresses, addr)
+	s.Addresses = append(s.Addresses, addr)
 	return nil
 }
 
 func (s *Service) getAddress() (address string, err error) {
 	err = nil
 	address = ""
-	if len(s.addresses) > 0 {
-		address = s.addresses[rand.Intn(len(s.addresses))]
+	if len(s.Addresses) > 0 {
+		address = s.Addresses[rand.Intn(len(s.Addresses))]
 	} else {
 		err = fmt.Errorf("Address does not exist for service: %s", s.name)
 	}
@@ -114,6 +114,24 @@ func (r *Registry) updateRegistry() error {
 	}
 
 	return nil
+}
+
+func (r *Registry) getActiveNodes() []string {
+        var nodes []string
+        unique_nodes := make(map[string]bool)
+
+        for _, service := range r.services {
+                for _, val := range service.Addresses {
+                        addr := strings.Split(val, ":")[0]
+                        unique_nodes[addr] = true
+                }
+        }
+
+        for node, _ := range unique_nodes {
+                nodes = append(nodes, node)
+        }
+
+        return nodes
 }
 
 func (r *Registry) getServicesSlice() []string {

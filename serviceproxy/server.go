@@ -11,6 +11,7 @@ import (
 const (
 	defaultAddr = "localhost"
 	servicePath = "/services/"
+	nodesPath = "/nodes/"
 )
 
 // Registry contains the services registered with the proxy server
@@ -46,6 +47,29 @@ func parseURI(r *http.Request, prefix string) ([]string, string, error) {
         return path_list, requestType, nil 
 }
 
+func nodesHandler(w http.ResponseWriter, r *http.Request) {
+        pathlist, requestType, err := parseURI(r, nodesPath)
+
+        if err != nil || len(pathlist) != 0 {
+                badRequest(w, "error handling URI")
+                return
+        }
+        if requestType != "get" {
+                badRequest(w, "only supports gets")
+                return
+        }
+    
+        w.Header().Set("Content-Type", "application/json")
+        
+        registry.updateRegistry()
+        nodes := registry.getActiveNodes()
+        
+        data := make(map[string]interface{})
+        data["nodes"] = nodes
+        jsonStr, _ := json.Marshal(data)
+        fmt.Fprintf(w, string(jsonStr))
+}
+
 func serviceHandler(w http.ResponseWriter, r *http.Request) {
 
         pathlist, requestType, err := parseURI(r, servicePath)
@@ -68,23 +92,28 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                 registry.updateRegistry()
                 members := registry.getServicesSlice()
 
-                w.Header().Set("Content-Type", "text/html")
+                w.Header().Set("Content-Type", "application/json")
 
+                data := make(map[string]interface{})
+                var services_json []interface{}
+                
                 for _, service := range members {
-                        href := "<a href=\"" + servicePath + service + "\">"
-                        fmt.Fprintf(w, href + service + "</a>")
-                        fmt.Fprintf(w, "<br>") 
+                        service_map := map[string]string{ service : servicePath + service}
+                        services_json = append(services_json, service_map)
                 }
+                data["services"] = services_json
+                jsonStr, _ := json.Marshal(data)
+                fmt.Fprintf(w, string(jsonStr))
         } else {
                 registry.updateRegistry()
                 addr, err := registry.getServiceAddr(pathlist[0])
     
                 w.Header().Set("Content-Type", "application/json")
-                var data  map[string]string
+                var data  map[string]interface{}
                 if err != nil {
-                        data = map[string]string{ pathlist[0] : "null" }
+                        data = map[string]interface{}{ pathlist[0] : nil }
                 } else {
-                        data = map[string]string{ pathlist[0] : addr }
+                        data = map[string]interface{}{ pathlist[0] : addr }
                 }
                 jsonStr, _ := json.Marshal(data)
                 fmt.Fprintf(w, string(jsonStr))
@@ -100,6 +129,7 @@ func Serve(port int) error {
 	httpserver := &http.Server{Addr: webAddress}
 
 	http.HandleFunc(servicePath, serviceHandler)
+	http.HandleFunc(nodesPath, nodesHandler)
 
 	httpserver.ListenAndServe()
 
