@@ -12,6 +12,9 @@ const (
 	defaultAddr = "localhost"
 	servicePath = "/services/"
 	nodesPath = "/nodes/"
+	execPath = "/exec/"
+	interfacePath = "/interface/"
+        interfaceFile = "interface/interface.raml"
 )
 
 // Registry contains the services registered with the proxy server
@@ -46,6 +49,47 @@ func parseURI(r *http.Request, prefix string) ([]string, string, error) {
 
         return path_list, requestType, nil 
 }
+
+func interfaceHandler(w http.ResponseWriter, r *http.Request) {
+        pathlist, requestType, err := parseURI(r, interfacePath)
+
+        if err != nil || len(pathlist) != 0 {
+                badRequest(w, "error handling URI")
+                return
+        }
+        if requestType != "get" {
+                badRequest(w, "only supports gets")
+                return
+        }
+    
+        w.Header().Set("Content-Type", "application/raml+yaml")
+        http.ServeFile(w, r, interfaceFile)
+}
+
+func execHandler(w http.ResponseWriter, r *http.Request) {
+        pathlist, _, err := parseURI(r, execPath)
+
+        if err != nil || len(pathlist) == 0 {
+                badRequest(w, "error handling URI")
+                return
+        }
+
+        registry.updateRegistry()
+        addr, err := registry.getServiceAddr(pathlist[0])
+
+        if err != nil {
+                badRequest(w, "error in processing: " + pathlist[0])
+        } else {
+                url := "http://" + addr + "/"
+                if len(pathlist) > 1 {
+                        url += strings.Join(pathlist[1:], "/")
+                }
+
+                http.Redirect(w, r, url, http.StatusFound)
+        }
+}
+   
+
 
 func nodesHandler(w http.ResponseWriter, r *http.Request) {
         pathlist, requestType, err := parseURI(r, nodesPath)
@@ -88,8 +132,8 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                 return
         }
 
+        registry.updateRegistry()
         if len(pathlist) == 0 {
-                registry.updateRegistry()
                 members := registry.getServicesSlice()
 
                 w.Header().Set("Content-Type", "application/json")
@@ -105,7 +149,6 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                 jsonStr, _ := json.Marshal(data)
                 fmt.Fprintf(w, string(jsonStr))
         } else {
-                registry.updateRegistry()
                 addr, err := registry.getServiceAddr(pathlist[0])
     
                 w.Header().Set("Content-Type", "application/json")
@@ -130,6 +173,8 @@ func Serve(port int) error {
 
 	http.HandleFunc(servicePath, serviceHandler)
 	http.HandleFunc(nodesPath, nodesHandler)
+	http.HandleFunc(execPath, execHandler)
+	http.HandleFunc(interfacePath, interfaceHandler)
 
 	httpserver.ListenAndServe()
 
