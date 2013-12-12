@@ -1,5 +1,7 @@
 # Service Proxy Tool
 
+[![Build Status](https://drone.io/github.com/janelia-flyem/serviceproxy/status.png)](https://drone.io/github.com/janelia-flyem/serviceproxy/latest)
+
 This go package provides a server that registers different services that
 connect to it using the [serf](https://github.com/hashicorp/serf)
 package.  The server provides the locations
