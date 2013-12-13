@@ -1,0 +1,47 @@
+@import "variables.less";
+@import "font_face.less";
+
+body#raml-console-unembedded {
+  margin: 0;
+}
+
+#raml-console-unembedded, raml-console article {
+  background-color: #E6E7EB;
+  color: #333;
+  margin: 0 20px 20px;
+}
+
+#raml-console-loader form {
+  margin: 25px;
+
+  label {
+    display: block;
+  }
+  input[type="text"], textarea {
+    width: 98%;
+  }
+  textarea {
+    height: 300px;
+  }
+}
+
+raml-console article#raml-console, #raml-console-loader {
+  @import "../../vendor/bower_components/font-awesome/less/font-awesome.less";
+  @import (less) "../../vendor/bower_components/codemirror/lib/codemirror.css";
+  @import "overrides.less";
+
+  @import "mixins.less";
+  @import "commons.less";
+  @import "markdown.less";
+  @import "tabs.less";
+  @import "forms.less";
+  @import "buttons.less";
+  @import "resources.less";
+  @import "methods.less";
+  @import "documentation.less";
+  @import "root_documentation.less";
+  @import "try_it.less";
+
+  // figure out the rest
+  @import "raml-console.less";
+}

@@ -1,0 +1,85 @@
+.documentation {
+  padding: 0 20px 20px;
+
+  .modifiers {
+    margin-left: 0;
+    margin-bottom: 20px;
+  }
+  .description {
+    margin-bottom: 20px;
+  }
+
+  .named-parameters {
+    border-bottom: 1px solid @veryLightGray;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    > h2 {
+      margin-top: 25px;
+    }
+
+    .parameter {
+      margin-bottom: 25px;
+
+      [markdown] {
+        p:first-child {
+          margin: -2px 0 0 0;
+        }
+
+        p:last-child {
+          margin: 0 0 1px 0;
+        }
+      }
+
+      .constraints {
+        color: @gray;
+        font-weight: normal;
+        font-style: italic;
+        margin-left: 5px;
+        font-size: 13px;
+      }
+
+      .info {
+        margin-left: 0px;
+        line-height: 21px;
+        vertical-align: middle;
+
+        [markdown] {
+          margin: 5px 0 0 0;
+        }
+      }
+    }
+  }
+
+  .responses {
+    h2 {
+      a {
+        display: block;
+        float: left;
+        color: @gray;
+        font-size: 19px;
+      }
+
+      .abbreviated-description {
+        padding: 0 10px 0 20px;
+        .inline-markdown(40px);
+      }
+
+      i {
+        width: 11px;
+        display: inline-block;
+      }
+      .clearfix;
+    }
+
+    .named-parameters {
+      h2 {
+        font-size: 15px;
+        line-height: 15px;
+      }
+    }
+  }
+
+}

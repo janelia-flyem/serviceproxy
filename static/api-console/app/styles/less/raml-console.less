@@ -1,0 +1,38 @@
+#raml-console-api-title {
+  float: left;
+  font-size: 20px;
+  line-height: 1em;
+  margin: 20px 0;
+}
+
+#raml-console-main-nav {
+  float: right;
+  margin-right: 10px;
+  margin-top: 13px;
+}
+
+#raml-console-content {
+  clear: both;
+}
+
+[role=documentation] {
+  h2 i[class^="icon-"] {
+    line-height: 40px;
+    vertical-align: baseline;
+  }
+
+  [role=documentation-requests], [role=documentation-responses] {
+    > div {
+      margin-top: 30px;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+  }
+}
+
+.code {
+  border: 1px solid #CDCDCC;
+  padding: 10px;
+}

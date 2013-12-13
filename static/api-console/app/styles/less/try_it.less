@@ -1,0 +1,86 @@
+.try-it {
+  .clearfix;
+
+  .path {
+    display: block;
+    font-size: 0px;
+    margin-bottom: 30px;
+
+    .segment {
+      font-size: 15px;
+    }
+    input {
+      margin: 0 5px 0 2px;
+      font-size: 15px;
+      width: 9em;
+    }
+  }
+}
+
+.try-it {
+  i {
+    font-size: 15px;
+    margin: 0 5px;
+  }
+
+  form {
+    margin-bottom: 0;
+
+    .media-types {
+      text-align: right;
+    }
+
+    // invert plus, 15px font
+    .parameter-factory {
+      margin-top: 50px;
+    }
+
+    textarea[name=body] {
+      .box-sizing(border-box);
+      width: 100%;
+      font-family: monospace;
+      height: 7em;
+    }
+
+    .body-prefill {
+      float: right;
+    }
+
+    .request-body {
+      margin-top: -5px;
+    }
+
+    .form-actions {
+      float: right;
+
+      .icon-spinner {
+        color: #1998C6;
+        margin-right: 10px;
+        vertical-align: middle;
+      }
+
+      .error, .warning {
+        display: inline;
+        margin-right: 10px;
+      }
+
+      .error {
+        color: @red;
+      }
+      .warning {
+        color: @mustard;
+      }
+    }
+
+    .clearfix
+  }
+
+  .response {
+    color: #333;
+    padding: 0 25px 15px;
+
+    .response-value {
+      font-family: monospace;
+    }
+  }
+}

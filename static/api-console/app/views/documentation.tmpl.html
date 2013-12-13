@@ -1,0 +1,25 @@
+<section class='documentation' role='documentation'>
+  <ul role="traits" class="modifiers">
+    <li class="trait" ng-repeat="trait in documentation.traits()">
+      {{trait|nameFromParameterizable}}
+    </li>
+  </ul>
+
+  <div role="full-description" class="description"
+       ng-if="method.description"
+       markdown="method.description">
+  </div>
+
+  <tabset>
+    <tab role='documentation-requests' heading="Request" active='documentation.requestsActive' disabled="!documentation.hasRequestDocumentation ">
+      <parameters></parameters>
+      <requests></requests>
+    </tab>
+    <tab role='documentation-responses' class="responses" heading="Responses" active='documentation.responsesActive' disabled='!documentation.hasResponseDocumentation'>
+      <responses></responses>
+    </tab>
+    <tab role="try-it" heading="Try It" active="documentation.tryItActive" disabled="!documentation.hasTryIt">
+      <try-it></try-it>
+    </tab>
+  </tabset>
+</section>
