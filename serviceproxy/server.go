@@ -14,7 +14,12 @@ const (
 	nodesPath = "/nodes/"
 	execPath = "/exec/"
 	interfacePath = "/interface/"
+	staticPath = "/static/"
+	schemaPath = "/schema/"
         interfaceFile = "interface/interface.raml"
+        interfaceFilePath = "/interface/raw"
+        
+        ramlHTML = "<iframe width=\"100%\" height=\"100%\" frameborder=\"0\" scrolling=\"auto\" src=\"/static/api-console/dist/index.html?raml=ADDRESS\"/>"
 )
 
 // Registry contains the services registered with the proxy server
@@ -53,7 +58,7 @@ func parseURI(r *http.Request, prefix string) ([]string, string, error) {
 func interfaceHandler(w http.ResponseWriter, r *http.Request) {
         pathlist, requestType, err := parseURI(r, interfacePath)
 
-        if err != nil || len(pathlist) != 0 {
+        if err != nil {
                 badRequest(w, "error handling URI")
                 return
         }
@@ -61,9 +66,15 @@ func interfaceHandler(w http.ResponseWriter, r *http.Request) {
                 badRequest(w, "only supports gets")
                 return
         }
-    
-        w.Header().Set("Content-Type", "application/raml+yaml")
-        http.ServeFile(w, r, interfaceFile)
+   
+        if len(pathlist) == 1 && pathlist[0] == "raw" {
+                w.Header().Set("Content-Type", "application/raml+yaml")
+                http.ServeFile(w, r, interfaceFile)
+        } else {
+                w.Header().Set("Content-Type", "text/html")
+                interfaceHTML := strings.Replace(ramlHTML, "ADDRESS", interfaceFilePath, 1)
+                fmt.Fprintf(w, interfaceHTML) 
+        } 
 }
 
 func execHandler(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +126,6 @@ func nodesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func serviceHandler(w http.ResponseWriter, r *http.Request) {
-
         pathlist, requestType, err := parseURI(r, servicePath)
         
         if err != nil {
@@ -163,6 +173,12 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
         }
 }
 
+func SourceHandler(w http.ResponseWriter, r *http.Request) {
+        // allow resources to be accessed via ajax
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        http.ServeFile(w, r, r.URL.Path[1:])
+}
+
 func Serve(port int) error {
 	webAddress := defaultAddr + ":" + strconv.Itoa(port)
 
@@ -175,6 +191,14 @@ func Serve(port int) error {
 	http.HandleFunc(nodesPath, nodesHandler)
 	http.HandleFunc(execPath, execHandler)
 	http.HandleFunc(interfacePath, interfaceHandler)
+        
+        // should be only called internally?
+        
+        // serve out static javascript pages for api handler
+        http.HandleFunc(staticPath, SourceHandler)
+
+        // serve out static json schema
+        http.HandleFunc(schemaPath, SourceHandler)
 
 	httpserver.ListenAndServe()
 
