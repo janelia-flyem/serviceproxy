@@ -137,7 +137,7 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                 return
 	}
         
-        if len(pathlist) > 1 {
+        if len(pathlist) > 2 || len(pathlist) == 1 {
                 badRequest(w, "incorrectly formatted URL")
                 return
         }
@@ -160,16 +160,31 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                 fmt.Fprintf(w, string(jsonStr))
         } else {
                 addr, err := registry.getServiceAddr(pathlist[0])
-    
-                w.Header().Set("Content-Type", "application/json")
-                var data  map[string]interface{}
-                if err != nil {
-                        data = map[string]interface{}{ pathlist[0] : nil }
+
+                if pathlist[1] == "interface" {
+                        if err != nil {
+                                badRequest(w, "Service " + pathlist[0] + " not found")
+                        } else {
+                                // ASSUME interface defined at client
+                                addr = "http://" + addr + "/interface" 
+                                w.Header().Set("Content-Type", "text/html")
+                                interfaceHTML := strings.Replace(ramlHTML, "ADDRESS", addr, 1)
+                                fmt.Fprintf(w, interfaceHTML)
+                        }
+                } else if pathlist[1] == "node" { 
+                        w.Header().Set("Content-Type", "application/json")
+                        var data  map[string]interface{}
+                        if err != nil {
+                                data = map[string]interface{}{ pathlist[0] : nil }
+                        } else {
+                                addr = "http://" + addr
+                                data = map[string]interface{}{ pathlist[0] : addr }
+                        }
+                        jsonStr, _ := json.Marshal(data)
+                        fmt.Fprintf(w, string(jsonStr))
                 } else {
-                        data = map[string]interface{}{ pathlist[0] : addr }
+                        badRequest(w, "Bad request for service: " + pathlist[0])
                 }
-                jsonStr, _ := json.Marshal(data)
-                fmt.Fprintf(w, string(jsonStr))
         }
 }
 
