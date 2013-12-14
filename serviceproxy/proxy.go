@@ -2,17 +2,17 @@ package serviceproxy
 
 import (
 	"fmt"
-	"github.com/hashicorp/serf/command/agent"
-	"github.com/mitchellh/cli"
-	"io/ioutil"
 	"net"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
+        "github.com/janelia-flyem/serviceproxy/register"
+        "strconv"
 )
 
-const defaultPort = 7946
+// create a default serf agent at the default port 7373
+const serfPort = 7946
+const rpcPort = 7373
 
 type ServiceProxy struct {
 	Port  int
@@ -20,22 +20,16 @@ type ServiceProxy struct {
 }
 
 func (proxy *ServiceProxy) Run() error {
-	// create a default serf agent at the default port 7373
-	writer := ioutil.Discard
-	if proxy.Debug {
-		writer = os.Stdout
-	}
-	ui := &cli.BasicUi{Writer: writer}
-	ac := &agent.Command{Ui: ui, ShutdownCh: make(chan struct{})}
-	var dargs []string
-	dargs = append(dargs, "-node=proxy#"+defaultAddr+":"+strconv.Itoa(proxy.Port))
+        // create agent and launch (no join node is specified)
+        serfagent := register.NewAgent("proxy", proxy.Port)
+        serfagent.SerfPort = serfPort
+        serfagent.RPCPort = rpcPort
+        serfagent.Debug = proxy.Debug
+        serfagent.RegisterService("")
 
 	hname, _ := os.Hostname()
 	addrs, _ := net.LookupHost(hname)
-
-	serfaddr := addrs[1] + ":" + strconv.Itoa(defaultPort)
-	dargs = append(dargs, "-bind="+serfaddr)
-	go ac.Run(dargs)
+	serfaddr := addrs[1] + ":" + strconv.Itoa(serfPort)
 
 	// address for clients to register (port does not need to be specified
 	// by the client if using the Go register interface)
@@ -50,6 +44,6 @@ func (proxy *ServiceProxy) Run() error {
 		os.Exit(0)
 	}()
 
-	// ?! create web server
+	// create web server
 	return Serve(proxy.Port)
 }

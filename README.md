@@ -42,14 +42,15 @@ the registry address (ADDR), call the following on the machine the service is ru
 If the -addr option is specified, one can specify the node address that will be running
 the service.
 
-We also provide a utility in Go to register a service (TBD).  First,
+We also provide a utility in Go to register a service.  First,
 import the register package:
 
     import "github.com/janelia-flyem/serviceproxy/register"
 
 To register a service call:
-
-    register.RegisterService("foo", 15555, ADDR)
+    
+    serfagent := register.NewAgent("foo", 15555)
+    serfagent.RegisterService(ADDR)
 
 In theory, service registration can also be done directly by creating
 a serf agent on the command using the following particular formatting
@@ -68,7 +69,6 @@ define appropriate JSON schemas.
 
 ##TODO
 
-* Add register package to allow clients to easily register services
 * Make an example client service
 * Add documentation, comments, testing
 * Setup proxy server to communicate between client and service rather than just redirect
