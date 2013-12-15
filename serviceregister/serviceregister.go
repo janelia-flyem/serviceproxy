@@ -10,7 +10,6 @@ import (
 
 var (
 	showHelp  = flag.Bool("help", false, "")
-	removeAgent  = flag.Bool("remove", false, "")
 )
 
 
@@ -18,7 +17,6 @@ const helpMessage = `
 Register a service on a given port to the registry.
 
 Usage: serviceregister <service name> <service port> <registry address>
-    -remove     (flag)      Remove service from registry
   -h, -help     (flag)          Show help message
 ` 
 
@@ -46,17 +44,6 @@ func main() {
 
         serfagent := register.NewAgent(flag.Arg(0), port)
  
-        if *removeAgent {
-               fmt.Println("unregister")
-                fmt.Println(flag.Arg(0))
-                fmt.Println(flag.Arg(1))
-                fmt.Println(flag.Arg(2))
-               serfagent.UnRegisterService() 
-               os.Exit(0)
-        } else {
-                serfagent.Blocking = true
-                serfagent.RegisterService(flag.Arg(2)) 
-        }
-
-        
+        serfagent.Blocking = true
+        serfagent.RegisterService(flag.Arg(2)) 
 }

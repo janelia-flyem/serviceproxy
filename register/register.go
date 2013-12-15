@@ -11,8 +11,16 @@ import (
         "strings"
 )
 
-const startingPort = 25001
-const buffersize = 10000
+const (
+
+    startingPort = 25001
+    buffersize = 10000
+   
+    // ports for proxy service
+    serfPort = 7946
+    rpcPort = 7373
+    proxyName = "proxy"
+)
 
 type AgentWriter struct {
 	bytes []byte
@@ -44,22 +52,31 @@ type SerfAgent struct {
         port      int
         serfname  string
         haddr     string
+        serfPort  int
+        rpcPort   int
         
-        SerfPort  int
-        RPCPort   int
         Debug     bool
         Blocking  bool
 }
 
 func NewAgent(name string, port int) (*SerfAgent) {
-        agent := &SerfAgent{name: name, port: port, SerfPort: -1, 
-                        RPCPort: -1, Debug: false, Blocking: false}       
+        agent := &SerfAgent{name: name, port: port, serfPort: -1, 
+                        rpcPort: -1, Debug: false, Blocking: false}       
         hname, _ := os.Hostname()
         addrs, _ := net.LookupHost(hname)
         agent.haddr = addrs[1]
         agent.serfname = name+"#"+addrs[1]+":"+strconv.Itoa(port)
 
+        if name == proxyName {
+            agent.serfPort = serfPort 
+            agent.rpcPort = rpcPort 
+        } 
+        
         return agent
+}
+
+func (s *SerfAgent) GetSerfPort() (int) {
+        return s.serfPort;
 }
 
 func (s *SerfAgent) RegisterService(registry string) (error) {
@@ -96,7 +113,12 @@ func (s *SerfAgent) UnRegisterService() (error) {
 
         // add the kill address and run	
 	var dargs []string
-        dargs = append(dargs, "-rpc-addr=" + s.haddr + ":" + strconv.Itoa(s.RPCPort))
+
+        // use current rpc port or find rpc port
+        if s.rpcPort == -1 {
+                return fmt.Errorf("Cannot unregister without an RPC address\n") 
+        }
+        dargs = append(dargs, "-rpc-addr=" + s.haddr + ":" + strconv.Itoa(s.rpcPort))
         ac.Run(dargs)
         
         return nil
@@ -105,7 +127,7 @@ func (s *SerfAgent) UnRegisterService() (error) {
 
 func (s *SerfAgent) launchAgent(ac *agent.Command, dargs []string, writer *AgentWriter) {
         hasdefault := false
-        if s.SerfPort != -1 || s.RPCPort != -1 {
+        if s.serfPort != -1 || s.rpcPort != -1 {
             hasdefault = true
         }
         start := startingPort
@@ -118,14 +140,14 @@ func (s *SerfAgent) launchAgent(ac *agent.Command, dargs []string, writer *Agent
        
                 // pick 2 ports for the serf agent 
                 if !hasdefault {
-                    s.SerfPort = start
-                    s.RPCPort = start + 1
+                    s.serfPort = start
+                    s.rpcPort = start + 1
                     start += 2 
                 }
         
                 // add port options
-                serfaddr := s.haddr + ":" + strconv.Itoa(s.SerfPort) 
-                rpcaddr := s.haddr + ":" + strconv.Itoa(s.RPCPort) 
+                serfaddr := s.haddr + ":" + strconv.Itoa(s.serfPort) 
+                rpcaddr := s.haddr + ":" + strconv.Itoa(s.rpcPort) 
                 args = append(args, "-bind="+serfaddr)
                 args = append(args, "-rpc-addr="+rpcaddr)
                 

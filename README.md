@@ -39,8 +39,8 @@ the registry address (ADDR), call the following on the machine the service is ru
     
     % registerservice foo 15555 ADDR
 
-If the -addr option is specified, one can specify the node address that will be running
-the service.
+This process will run indefintely and should probably be run in the background.
+To unregister, this process must be killed.
 
 We also provide a utility in Go to register a service.  First,
 import the register package:
@@ -51,6 +51,11 @@ To register a service call:
     
     serfagent := register.NewAgent("foo", 15555)
     serfagent.RegisterService(ADDR)
+
+To unregister the service, the calling program could terminate or
+the following can be called:
+
+    serfagent.UnregisterService()
 
 In theory, service registration can also be done directly by creating
 a serf agent on the command using the following particular formatting
