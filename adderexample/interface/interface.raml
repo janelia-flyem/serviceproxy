@@ -1,0 +1,19 @@
+#%RAML 0.8
+title: Adder Service
+/:
+  post:
+    body:
+      application/json:
+        schema: |
+          { "$schema": "http://json-schema.org/schema#",
+            "title": "Provide numbers to be added together",
+            "type": "object",
+            "properties": {
+              "num1" : { "type" : "integer" },
+              "num2" : { "type" : "integer" }
+            },
+            "required" : ["num1", "num2"]
+          }
+/interface:
+  get:
+    description: "Get the interface for the adder service"

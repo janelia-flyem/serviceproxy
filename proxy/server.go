@@ -99,8 +99,6 @@ func execHandler(w http.ResponseWriter, r *http.Request) {
                 http.Redirect(w, r, url, http.StatusFound)
         }
 }
-   
-
 
 func nodesHandler(w http.ResponseWriter, r *http.Request) {
         pathlist, requestType, err := parseURI(r, nodesPath)
