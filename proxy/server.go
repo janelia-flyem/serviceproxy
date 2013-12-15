@@ -1,4 +1,4 @@
-package serviceproxy
+package proxy
 
 import (
         "encoding/json"

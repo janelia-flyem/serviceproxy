@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/janelia-flyem/serviceproxy/serviceproxy"
+	"github.com/janelia-flyem/serviceproxy/proxy"
 	"os"
 )
 
@@ -33,6 +33,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	proxy := serviceproxy.ServiceProxy{Port: *portNum, Debug: *debugSerf}
+	proxy := proxy.ServiceProxy{Port: *portNum, Debug: *debugSerf}
 	proxy.Run()
 }

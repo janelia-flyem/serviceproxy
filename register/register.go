@@ -48,11 +48,12 @@ type SerfAgent struct {
         SerfPort  int
         RPCPort   int
         Debug     bool
+        Blocking  bool
 }
 
 func NewAgent(name string, port int) (*SerfAgent) {
         agent := &SerfAgent{name: name, port: port, SerfPort: -1, 
-                        RPCPort: -1, Debug: false}       
+                        RPCPort: -1, Debug: false, Blocking: false}       
         hname, _ := os.Hostname()
         addrs, _ := net.LookupHost(hname)
         agent.haddr = addrs[1]
@@ -77,7 +78,11 @@ func (s *SerfAgent) RegisterService(registry string) (error) {
                 dargs = append(dargs, "-join=" + registry)
         }
 
-	go s.launchAgent(ac, dargs, writer)
+        if !s.Blocking {
+                go s.launchAgent(ac, dargs, writer)
+        } else {
+                s.launchAgent(ac, dargs, writer)
+        }
 
         return nil
 }
@@ -129,7 +134,6 @@ func (s *SerfAgent) launchAgent(ac *agent.Command, dargs []string, writer *Agent
 
                 // check final output for errors
                 output := writer.GetString()
-                fmt.Println(output)
                 if strings.Contains(output, "Failed to start") || strings.Contains(output, "Error starting") {
                         if hasdefault {
                                 panic("Agent failed to start at specified ports")
