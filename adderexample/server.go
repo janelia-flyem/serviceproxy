@@ -2,6 +2,7 @@ package main
 
 import (
 //        "encoding/json"
+	"net"
 	"net/http"
 	"fmt"
 	"syscall"
@@ -12,7 +13,6 @@ import (
 )
 
 const (
-	defaultAddr = "localhost"
         staticPath = "/static/"
         interfacePath = "/interface/"
 )
@@ -33,8 +33,11 @@ func SourceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func Serve(port int) {
-	webAddress := defaultAddr + ":" + strconv.Itoa(port)	
-
+	hname, _ := os.Hostname()
+	addrs, _ := net.LookupHost(hname)
+        
+	webAddress := addrs[1] + ":" + strconv.Itoa(port)	
+        
         fmt.Printf("Web server address: %s\n", webAddress)
 	fmt.Printf("Running...\n")
 
