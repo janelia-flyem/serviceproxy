@@ -2,6 +2,7 @@
 title: Adder Service
 /:
   post:
+    description: "Call service to add two numbers"
     body:
       application/json:
         schema: |
@@ -14,6 +15,44 @@ title: Adder Service
             },
             "required" : ["num1", "num2"]
           }
-/interface:
+    responses:
+      200:
+        body:
+          application/json:
+            schema: |
+              { "$schema" : "http://json-schema.org/schema#",
+                "title" : "Provides callback link for results",
+                "type" : "object",
+                "properties" : {
+                  "result-callback" : {
+                    "description" : "URL for results",
+                    "type" : "string"
+                  }
+                },
+                "required" : ["result-callback"]
+              }
+/jobs/{id}:
+  get:
+    description: "Get the result from a particular job"
+    responses:
+      200:
+        body:
+          application/json:
+            schema: |
+              { "$schema" : "http://json-schema.org/schema#",
+                "title" : "Results from adder service",
+                "type" : "object",
+                "properties" : {
+                  "result" : {
+                    "type" : "integer"
+                  }
+                },
+                "required" : ["result"]
+              }         
+/interface/interface.raml:
   get:
     description: "Get the interface for the adder service"
+    responses:
+      200:
+        body:
+          application/raml+yaml:
