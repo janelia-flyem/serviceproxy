@@ -12,6 +12,7 @@ import (
         "math/rand"
         "time"
 	"strings"
+        "github.com/sigu-399/gojsonschema"
 )
 
 const (
@@ -20,6 +21,18 @@ const (
 )
 
 var srcPATH string
+
+const serviceSchema = `
+{ "$schema": "http://json-schema.org/schema#",
+  "title": "Provide numbers to be added together",
+  "type": "object",
+  "properties": {
+    "num1" : { "type" : "integer" },
+    "num2" : { "type" : "integer" }
+  },
+  "required" : ["num1", "num2"]
+}
+`
 
 func parseURI(r *http.Request, prefix string) ([]string, string, error) {
 	requestType := strings.ToLower(r.Method)
@@ -98,16 +111,26 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 		badRequest(w, "only supports posts")
                 return
 	}
-        
-        fmt.Println(r.Body) 
+
+        // read json
 	decoder := json.NewDecoder(r.Body)
-        var params map[string]int
-        err = decoder.Decode(&params)
+        var json_data map[string]interface{}
+        err = decoder.Decode(&json_data)
+
+        // convert schema to json data
+        var schema_data interface {}
+        json.Unmarshal([]byte(serviceSchema), &schema_data)
+
+        schema, err := gojsonschema.NewJsonSchemaDocument(schema_data)
+        validationResult := schema.Validate(json_data)
+        if !validationResult.IsValid() {
+                badRequest(w, "JSON did not pass validation")
+                return
+        } 
 
         var addRequest AddRequest
-        addRequest.num1 = params["num1"]
-        addRequest.num2 = params["num2"]
-
+        addRequest.num1 = int(json_data["num1"].(float64))
+        addRequest.num2 = int(json_data["num2"].(float64))
         if err != nil {
                 badRequest(w, "JSON not formatted properly")
                 return
