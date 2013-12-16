@@ -74,7 +74,6 @@ define appropriate JSON schemas.
 
 ##TODO
 
-* Make an example client service
 * Add documentation, comments, testing
 * Setup proxy server to communicate between client and service rather than just redirect
 * Support caching mechanisms
