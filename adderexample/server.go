@@ -23,15 +23,7 @@ func InterfaceHandler(w http.ResponseWriter, r *http.Request) {
         // allow resources to be accessed via ajax
         w.Header().Set("Content-Type", "application/raml+yaml")
         w.Header().Set("Access-Control-Allow-Origin", "*")
-        w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
-        w.Header().Set("Access-Control-Allow-Methods", "GET")        
         http.ServeFile(w, r, srcPATH + "interface/interface.raml")
-}
-
-func SourceHandler(w http.ResponseWriter, r *http.Request) {
-        // allow resources to be accessed via ajax
-        w.Header().Set("Access-Control-Allow-Origin", "*")
-        http.ServeFile(w, r, srcPATH + r.URL.Path[1:])
 }
 
 func Serve(port int, srcroot string) {
@@ -48,7 +40,6 @@ func Serve(port int, srcroot string) {
 	httpserver := &http.Server{Addr: webAddress}
         
         // serve out static json schema and raml (allow access)
-        http.HandleFunc(staticPath, SourceHandler)
         http.HandleFunc(interfacePath, InterfaceHandler)
 
         // exit server if user presses Ctrl-C

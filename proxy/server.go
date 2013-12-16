@@ -16,12 +16,22 @@ const (
 	execPath = "/exec/"
 	interfacePath = "/interface/"
 	staticPath = "/static/"
-	schemaPath = "/schema/"
         interfaceFile = "interface/interface.raml"
         interfaceFilePath = "/interface/raw"
-        
-        ramlHTML = "<iframe width=\"100%\" height=\"100%\" frameborder=\"0\" scrolling=\"auto\" src=\"/static/api-console/dist/index.html?raml=ADDRESS\"/>"
 )
+
+const ramlHTML = `
+<html>
+<head>
+  <link rel="stylesheet" href="/static/api-console/dist/styles/app.css" type="text/css" />
+</head>
+<body ng-app="ramlConsoleApp" ng-cloak id="raml-console-unembedded">
+  <script src="/static/api-console/dist/scripts/vendor.js"></script>
+  <script src="/static/api-console/dist/scripts/app.js"></script>
+  <raml-console src="ADDRESS"/> 
+</body>
+</html>
+`
 
 var srcPATH string
 
@@ -167,7 +177,7 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                                 badRequest(w, "Service " + pathlist[0] + " not found")
                         } else {
                                 // ASSUME interface defined at client
-                                addr = "http://" + addr + "/interface" 
+                                addr = "http://" + addr + "/interface/interface.raml" 
                                 w.Header().Set("Content-Type", "text/html")
                                 interfaceHTML := strings.Replace(ramlHTML, "ADDRESS", addr, 1)
                                 fmt.Fprintf(w, interfaceHTML)
