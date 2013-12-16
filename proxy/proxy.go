@@ -15,7 +15,7 @@ type ServiceProxy struct {
 	Debug bool
 }
 
-func (proxy *ServiceProxy) Run() error {
+func (proxy *ServiceProxy) Run(srcroot string) error {
         // create agent and launch (no join node is specified)
         serfagent := register.NewAgent("proxy", proxy.Port)
         serfagent.Debug = proxy.Debug
@@ -39,5 +39,5 @@ func (proxy *ServiceProxy) Run() error {
 	}()
 
 	// create web server
-	return Serve(proxy.Port)
+	return Serve(proxy.Port, srcroot)
 }

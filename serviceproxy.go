@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/janelia-flyem/serviceproxy/proxy"
 	"os"
+        "strings"
 )
 
 const defaultPort = 15333
@@ -17,7 +18,7 @@ var (
 
 const helpMessage = `
 The service proxy tool registers different services through the
-serf package. 
+serf package. (GOPATH must be set to the current src path.) 
  
 Usage: serviceproxy
       -port     (number)        Port for HTTP server
@@ -33,6 +34,12 @@ func main() {
 		os.Exit(0)
 	}
 
+        srcroot := os.Getenv("GOPATH")
+        if srcroot == "" || strings.Contains(srcroot, ":") {
+                fmt.Printf("GOPATH must be set to current src path\n")
+                os.Exit(0)
+        }
+
 	proxy := proxy.ServiceProxy{Port: *portNum, Debug: *debugSerf}
-	proxy.Run()
+	proxy.Run(srcroot)
 }

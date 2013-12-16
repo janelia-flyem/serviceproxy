@@ -23,6 +23,8 @@ const (
         ramlHTML = "<iframe width=\"100%\" height=\"100%\" frameborder=\"0\" scrolling=\"auto\" src=\"/static/api-console/dist/index.html?raml=ADDRESS\"/>"
 )
 
+var srcPATH string
+
 // Registry contains the services registered with the proxy server
 var registry Registry
 
@@ -70,7 +72,7 @@ func interfaceHandler(w http.ResponseWriter, r *http.Request) {
    
         if len(pathlist) == 1 && pathlist[0] == "raw" {
                 w.Header().Set("Content-Type", "application/raml+yaml")
-                http.ServeFile(w, r, interfaceFile)
+                http.ServeFile(w, r, srcPATH + interfaceFile)
         } else {
                 w.Header().Set("Content-Type", "text/html")
                 interfaceHTML := strings.Replace(ramlHTML, "ADDRESS", interfaceFilePath, 1)
@@ -190,13 +192,14 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 func SourceHandler(w http.ResponseWriter, r *http.Request) {
         // allow resources to be accessed via ajax
         w.Header().Set("Access-Control-Allow-Origin", "*")
-        http.ServeFile(w, r, r.URL.Path[1:])
+        http.ServeFile(w, r, srcPATH + r.URL.Path[1:])
 }
 
-func Serve(port int) error {
-	hname, _ := os.Hostname()
-	addrs, _ := net.LookupHost(hname)
+func Serve(port int, srcroot string) error {
+        srcPATH = srcroot + "/src/github.com/janelia-flyem/serviceproxy/"
 	
+        hname, _ := os.Hostname()
+	addrs, _ := net.LookupHost(hname)
         webAddress := addrs[1] + ":" + strconv.Itoa(port)
 
 	fmt.Printf("Web server address: %s\n", webAddress)
@@ -213,9 +216,6 @@ func Serve(port int) error {
         
         // serve out static javascript pages for api handler
         http.HandleFunc(staticPath, SourceHandler)
-
-        // serve out static json schema
-        http.HandleFunc(schemaPath, SourceHandler)
 
 	httpserver.ListenAndServe()
 

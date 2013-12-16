@@ -17,22 +17,26 @@ const (
         interfacePath = "/interface/"
 )
 
+var srcPATH string
+
 func InterfaceHandler(w http.ResponseWriter, r *http.Request) {
         // allow resources to be accessed via ajax
         w.Header().Set("Content-Type", "application/raml+yaml")
         w.Header().Set("Access-Control-Allow-Origin", "*")
         w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
         w.Header().Set("Access-Control-Allow-Methods", "GET")        
-        http.ServeFile(w, r, "interface/interface.raml")
+        http.ServeFile(w, r, srcPATH + "interface/interface.raml")
 }
 
 func SourceHandler(w http.ResponseWriter, r *http.Request) {
         // allow resources to be accessed via ajax
         w.Header().Set("Access-Control-Allow-Origin", "*")
-        http.ServeFile(w, r, r.URL.Path[1:])
+        http.ServeFile(w, r, srcPATH + r.URL.Path[1:])
 }
 
-func Serve(port int) {
+func Serve(port int, srcroot string) {
+        srcPATH = srcroot + "/src/github.com/janelia-flyem/serviceproxy/adderexample/"
+
 	hname, _ := os.Hostname()
 	addrs, _ := net.LookupHost(hname)
         
