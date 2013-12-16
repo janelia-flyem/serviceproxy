@@ -186,10 +186,10 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                         w.Header().Set("Content-Type", "application/json")
                         var data  map[string]interface{}
                         if err != nil {
-                                data = map[string]interface{}{ pathlist[0] : nil }
+                                data = map[string]interface{}{ "service-location" : nil }
                         } else {
                                 addr = "http://" + addr
-                                data = map[string]interface{}{ pathlist[0] : addr }
+                                data = map[string]interface{}{ "service-location" : addr }
                         }
                         jsonStr, _ := json.Marshal(data)
                         fmt.Fprintf(w, string(jsonStr))
