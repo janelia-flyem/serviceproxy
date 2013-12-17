@@ -82,7 +82,7 @@ func interfaceHandler(w http.ResponseWriter, r *http.Request) {
    
         if len(pathlist) == 1 && pathlist[0] == "raw" {
                 w.Header().Set("Content-Type", "application/raml+yaml")
-                http.ServeFile(w, r, srcPATH + interfaceFile)
+                fmt.Fprintf(w, ramlInterface) 
         } else {
                 w.Header().Set("Content-Type", "text/html")
                 interfaceHTML := strings.Replace(ramlHTML, "ADDRESS", interfaceFilePath, 1)
