@@ -5,7 +5,6 @@ import (
         "fmt"
         "github.com/janelia-flyem/serviceproxy/register"
         "os"
-        "strings"
 )
 
 const defaultPort = 23230
@@ -39,14 +38,8 @@ func main() {
                 os.Exit(0)
         }   
 
-        srcroot := os.Getenv("GOPATH")
-        if srcroot == "" || strings.Contains(srcroot, ":") {
-                fmt.Printf("GOPATH must be set to current src path\n")
-                os.Exit(0)
-        }
-
         serfagent := register.NewAgent("adder", *portNum)
         serfagent.RegisterService(flag.Arg(0)) 
  
-        Serve(*portNum, srcroot)
+        Serve(*portNum)
 }

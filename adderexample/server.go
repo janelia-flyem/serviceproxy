@@ -20,7 +20,65 @@ const (
         interfacePath = "/interface/"
 )
 
-var srcPATH string
+const ramlInterface = `#%%RAML 0.8
+title: Adder Service
+/:
+  post:
+    description: "Call service to add two numbers"
+    body:
+      application/json:
+        schema: |
+          { "$schema": "http://json-schema.org/schema#",
+            "title": "Provide numbers to be added together",
+            "type": "object",
+            "properties": {
+              "num1" : { "type" : "integer" },
+              "num2" : { "type" : "integer" }
+            },
+            "required" : ["num1", "num2"]
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            schema: |
+              { "$schema" : "http://json-schema.org/schema#",
+                "title" : "Provides callback link for results",
+                "type" : "object",
+                "properties" : {
+                  "result-callback" : {
+                    "description" : "URL for results",
+                    "type" : "string"
+                  }
+                },
+                "required" : ["result-callback"]
+              }
+/jobs/{id}:
+  get:
+    description: "Get the result from a particular job"
+    responses:
+      200:
+        body:
+          application/json:
+            schema: |
+              { "$schema" : "http://json-schema.org/schema#",
+                "title" : "Results from adder service",
+                "type" : "object",
+                "properties" : {
+                  "result" : {
+                    "type" : "integer"
+                  }
+                },
+                "required" : ["result"]
+              }         
+/interface/interface.raml:
+  get:
+    description: "Get the interface for the adder service"
+    responses:
+      200:
+        body:
+          application/raml+yaml:
+`
 
 const serviceSchema = `
 { "$schema": "http://json-schema.org/schema#",
@@ -33,7 +91,6 @@ const serviceSchema = `
   "required" : ["num1", "num2"]
 }
 `
-
 func parseURI(r *http.Request, prefix string) ([]string, string, error) {
 	requestType := strings.ToLower(r.Method)
         prefix = strings.Trim(prefix, "/")
@@ -70,7 +127,7 @@ func interfaceHandler(w http.ResponseWriter, r *http.Request) {
         // allow resources to be accessed via ajax
         w.Header().Set("Content-Type", "application/raml+yaml")
         w.Header().Set("Access-Control-Allow-Origin", "*")
-        http.ServeFile(w, r, srcPATH + "interface/interface.raml")
+        fmt.Fprintf(w, ramlInterface)
 }
 
 type AddRequest struct {
@@ -174,9 +231,7 @@ func jobHandler(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w, string(jsondata))
 }
 
-func Serve(port int, srcroot string) {
-        srcPATH = srcroot + "/src/github.com/janelia-flyem/serviceproxy/adderexample/"
-
+func Serve(port int) {
         jobResults.Results = make(map[string]interface{})
 
 	hname, _ := os.Hostname()
