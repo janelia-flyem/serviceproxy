@@ -2,7 +2,6 @@ package main
 
 import (
         "encoding/json"
-	"net"
 	"net/http"
 	"fmt"
 	"syscall"
@@ -235,9 +234,8 @@ func Serve(port int) {
         jobResults.Results = make(map[string]interface{})
 
 	hname, _ := os.Hostname()
-	addrs, _ := net.LookupHost(hname)
         
-	webAddress = addrs[1] + ":" + strconv.Itoa(port)	
+	webAddress = hname + ":" + strconv.Itoa(port)	
         
         fmt.Printf("Web server address: %s\n", webAddress)
 	fmt.Printf("Running...\n")

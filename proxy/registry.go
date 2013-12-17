@@ -87,19 +87,19 @@ func (r *Registry) UpdateRegistry() error {
 			continue
 		}
 		complete_address_name := serviceport[1]
-		service_address := strings.Split(complete_address_name, ":")
+//		service_address := strings.Split(complete_address_name, ":")
 
 		if len(fields) != 3 {
 			fmt.Errorf("incorrect number of fields for service")
 			continue
 		}
-		address_fields := strings.Split(fields[1], ":")
-		serf_address := address_fields[0]
+//		address_fields := strings.Split(fields[1], ":")
+//		serf_address := address_fields[0]
 
-		if serf_address != service_address[0] {
-			fmt.Errorf("Service address does not match serf agent address: %s\n", service_name)
-			continue
-		}
+//		if serf_address != service_address[0] {
+//			fmt.Errorf("Service address does not match serf agent address: %s\n", service_name)
+//			continue
+//		}
 
 		_, ok := r.services[service_name]
 		var service *Service

@@ -3,7 +3,6 @@ package proxy
 import (
         "encoding/json"
 	"fmt"
-        "net"
         "os"
 	"net/http"
 	"strconv"
@@ -209,8 +208,7 @@ func Serve(port int, srcroot string) error {
         srcPATH = srcroot + "/src/github.com/janelia-flyem/serviceproxy/"
 	
         hname, _ := os.Hostname()
-	addrs, _ := net.LookupHost(hname)
-        webAddress := addrs[1] + ":" + strconv.Itoa(port)
+        webAddress := hname + ":" + strconv.Itoa(port)
 
 	fmt.Printf("Web server address: %s\n", webAddress)
 	fmt.Printf("Running...\n")

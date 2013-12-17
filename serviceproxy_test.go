@@ -5,6 +5,7 @@ import (
 	"github.com/janelia-flyem/serviceproxy/register"
 	"github.com/janelia-flyem/serviceproxy/proxy"
         "time"
+        "os"
 )
 
 func TestProxyRegister(t *testing.T) {
@@ -75,10 +76,11 @@ func TestServiceMemberIdentification(t *testing.T) {
 
         // register dummy adder service
         serfagent2 := register.NewAgent("adder", 23230)
-        serfagent2.RegisterService("127.0.0.1:7946") 
+        hname, _ := os.Hostname()
+        serfagent2.RegisterService(hname + ":7946") 
      
         // make sure service is up
-        time.Sleep(1 * time.Second)
+        time.Sleep(10 * time.Second)
 
         var registry proxy.Registry 
         registry.UpdateRegistry()

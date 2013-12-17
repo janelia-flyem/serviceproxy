@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,9 +20,8 @@ func (proxy *ServiceProxy) Run(srcroot string) error {
         serfagent.Debug = proxy.Debug
         serfagent.RegisterService("")
 
-	hname, _ := os.Hostname()
-	addrs, _ := net.LookupHost(hname)
-	serfaddr := addrs[1] + ":" + strconv.Itoa(serfagent.GetSerfPort())
+        hname, _ := os.Hostname()
+	serfaddr := hname + ":" + strconv.Itoa(serfagent.GetSerfPort())
 
 	// address for clients to register (port does not need to be specified
 	// by the client if using the Go register interface)

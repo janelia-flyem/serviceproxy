@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/serf/command"
         "fmt"
         "os"
-        "net"
         "strconv"
         "strings"
 )
@@ -63,9 +62,8 @@ func NewAgent(name string, port int) (*SerfAgent) {
         agent := &SerfAgent{name: name, port: port, serfPort: -1, 
                         rpcPort: -1, Debug: false, Blocking: false}       
         hname, _ := os.Hostname()
-        addrs, _ := net.LookupHost(hname)
-        agent.haddr = addrs[1]
-        agent.serfname = name+"#"+addrs[1]+":"+strconv.Itoa(port)
+        agent.haddr = hname
+        agent.serfname = name+"#"+hname+":"+strconv.Itoa(port)
 
         if name == proxyName {
             agent.serfPort = serfPort 
