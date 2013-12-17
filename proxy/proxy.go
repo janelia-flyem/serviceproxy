@@ -16,6 +16,11 @@ type ServiceProxy struct {
 
 var rpcAddr string
 
+func init() {
+        hname, _ := os.Hostname()
+        rpcAddr = hname + ":7373"
+}
+
 func (proxy *ServiceProxy) Run(srcroot string) error {
         // create agent and launch (no join node is specified)
         serfagent := register.NewAgent("proxy", proxy.Port)
@@ -24,8 +29,6 @@ func (proxy *ServiceProxy) Run(srcroot string) error {
 
         hname, _ := os.Hostname()
 	serfaddr := hname + ":" + strconv.Itoa(serfagent.GetSerfPort())
-
-        rpcAddr = hname + ":7373"
 
 	// address for clients to register (port does not need to be specified
 	// by the client if using the Go register interface)
