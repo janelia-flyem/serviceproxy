@@ -10,6 +10,10 @@ servers by routing service requests (currently serviceproxy will only
 redirect service calls to the appropriate address rather than act as
 the intermediary).
 
+The tool has been tested on linux but should work flexibly in other
+environments.  Because the serf protocol can work on external
+networks, services can be managed across the internet.
+
 ##Installation and Basic Usage
 This package includes the main executable for launching the service
 proxy ('serviceproxy').  The package also includes an
@@ -25,6 +29,10 @@ To install adderexample and serviceregister
     % cd $GOPATH/src/github.com/janelia-flyem/serviceproxy
     % go get ./...
     
+Before launching serviceproxy, GOPATH should be set
+to the path that roots the downloaded go packages.  This is
+necessary for now since there are some static file resources
+needed by the web server.
 
 To launch the server:
 

@@ -8,11 +8,17 @@ import (
 	"strings"
 )
 
+// Arbitrary port chosen as the default
 const defaultPort = 15333
 
 var (
-	showHelp  = flag.Bool("help", false, "")
-	portNum   = flag.Int("port", defaultPort, "")
+	// Prints help message
+	showHelp = flag.Bool("help", false, "")
+
+	// Specify port address for web server
+	portNum = flag.Int("port", defaultPort, "")
+
+	// Show serf agent debug output
 	debugSerf = flag.Bool("debug", false, "")
 )
 
@@ -34,6 +40,7 @@ func main() {
 		os.Exit(0)
 	}
 
+	// GOPATH needed to access static resources.  (To be removed)
 	srcroot := os.Getenv("GOPATH")
 	if srcroot == "" || strings.Contains(srcroot, ":") {
 		fmt.Printf("GOPATH must be set to current src path\n")
@@ -41,5 +48,6 @@ func main() {
 	}
 
 	proxy := proxy.ServiceProxy{Port: *portNum, Debug: *debugSerf}
+	// launch tool to create proxy serf agent and web server
 	proxy.Run(srcroot)
 }

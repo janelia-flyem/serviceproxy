@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// TestProxyRegister checks that serviceproxy can be registered as a serf agent.
 func TestProxyRegister(t *testing.T) {
 	// register proxy
 	serfagent := register.NewAgent("proxy", 15333)
@@ -27,7 +28,7 @@ func TestProxyRegister(t *testing.T) {
 		return
 	}
 
-	// ?! check that service is alive
+	// TODO: check that service is alive
 
 	err = serfagent.UnRegisterService()
 	if err != nil {
@@ -36,6 +37,7 @@ func TestProxyRegister(t *testing.T) {
 	}
 }
 
+// TestServiceRegister checks that a client can be registered as a serf agent.
 func TestServiceRegister(t *testing.T) {
 	// register proxy
 	serfagent := register.NewAgent("adder", 23230)
@@ -55,7 +57,7 @@ func TestServiceRegister(t *testing.T) {
 		return
 	}
 
-	// ?! check that service is alive
+	// TODO check that service is alive
 
 	err = serfagent.UnRegisterService()
 	if err != nil {
@@ -64,6 +66,7 @@ func TestServiceRegister(t *testing.T) {
 	}
 }
 
+// TestServiceMemberIdentification checks that a client can register with the serviceproxy.
 func TestServiceMemberIdentification(t *testing.T) {
 	// register proxy
 	serfagent := register.NewAgent("proxy", 15333)
@@ -78,7 +81,7 @@ func TestServiceMemberIdentification(t *testing.T) {
 	serfagent2.RegisterService(hname + ":7946")
 
 	// make sure service is up
-	time.Sleep(10 * time.Second)
+	time.Sleep(1 * time.Second)
 
 	var registry proxy.Registry
 	registry.UpdateRegistry()
