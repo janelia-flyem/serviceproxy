@@ -108,6 +108,7 @@ specific formatting
 
 ##TODO
 
-* Setup proxy server to communicate between client and service rather than just redirect
-* Support caching mechanisms
-
+* Have serviceproxy act as an intermediary between users and the services (beyond redirection)
+* Allow for some basic orchestration between services
+* Enable data encryption and authentication for services in non-internal networks
+* Provide caching mechanisms for quicker service access
