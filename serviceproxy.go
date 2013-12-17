@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/janelia-flyem/serviceproxy/proxy"
 	"os"
-        "strings"
+	"strings"
 )
 
 const defaultPort = 15333
@@ -34,11 +34,11 @@ func main() {
 		os.Exit(0)
 	}
 
-        srcroot := os.Getenv("GOPATH")
-        if srcroot == "" || strings.Contains(srcroot, ":") {
-                fmt.Printf("GOPATH must be set to current src path\n")
-                os.Exit(0)
-        }
+	srcroot := os.Getenv("GOPATH")
+	if srcroot == "" || strings.Contains(srcroot, ":") {
+		fmt.Printf("GOPATH must be set to current src path\n")
+		os.Exit(0)
+	}
 
 	proxy := proxy.ServiceProxy{Port: *portNum, Debug: *debugSerf}
 	proxy.Run(srcroot)

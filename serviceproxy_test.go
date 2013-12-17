@@ -1,98 +1,96 @@
 package main
 
 import (
-        "testing"
-	"github.com/janelia-flyem/serviceproxy/register"
 	"github.com/janelia-flyem/serviceproxy/proxy"
-        "time"
-        "os"
+	"github.com/janelia-flyem/serviceproxy/register"
+	"os"
+	"testing"
+	"time"
 )
 
 func TestProxyRegister(t *testing.T) {
-        // register proxy
-        serfagent := register.NewAgent("proxy", 15333)
-        err := serfagent.RegisterService("")
- 
-        // make sure service is up
-        time.Sleep(1 * time.Second)
+	// register proxy
+	serfagent := register.NewAgent("proxy", 15333)
+	err := serfagent.RegisterService("")
 
-        if err != nil {
-                t.Errorf("Error when registering")
-                return
-        }
+	// make sure service is up
+	time.Sleep(1 * time.Second)
 
-        port := serfagent.GetSerfPort()
-        if port != 7946 {
-                t.Errorf("Proxy not registered at port 7946")
-                return
-        }
-        
-        // ?! check that service is alive
+	if err != nil {
+		t.Errorf("Error when registering")
+		return
+	}
 
-        err = serfagent.UnRegisterService()
-        if err != nil {
-                t.Errorf("Failed to unregister proxy")
-                return
-        }       
+	port := serfagent.GetSerfPort()
+	if port != 7946 {
+		t.Errorf("Proxy not registered at port 7946")
+		return
+	}
+
+	// ?! check that service is alive
+
+	err = serfagent.UnRegisterService()
+	if err != nil {
+		t.Errorf("Failed to unregister proxy")
+		return
+	}
 }
 
 func TestServiceRegister(t *testing.T) {
-        // register proxy
-        serfagent := register.NewAgent("adder", 23230)
-        err := serfagent.RegisterService("") 
-        
-        // make sure service is up
-        time.Sleep(1 * time.Second)
+	// register proxy
+	serfagent := register.NewAgent("adder", 23230)
+	err := serfagent.RegisterService("")
 
-        if err != nil {
-                t.Errorf("Error when registering")
-                return
-        }
-        
-        port := serfagent.GetSerfPort()
-        if port <= 25000 {
-                t.Errorf("Service port not found in correct range")
-                return
-        }       
-        
-        // ?! check that service is alive
+	// make sure service is up
+	time.Sleep(1 * time.Second)
 
-        err = serfagent.UnRegisterService()
-        if err != nil {
-                t.Errorf("Failed to unregister service")
-                return
-        } 
+	if err != nil {
+		t.Errorf("Error when registering")
+		return
+	}
+
+	port := serfagent.GetSerfPort()
+	if port <= 25000 {
+		t.Errorf("Service port not found in correct range")
+		return
+	}
+
+	// ?! check that service is alive
+
+	err = serfagent.UnRegisterService()
+	if err != nil {
+		t.Errorf("Failed to unregister service")
+		return
+	}
 }
 
-
 func TestServiceMemberIdentification(t *testing.T) {
-        // register proxy
-        serfagent := register.NewAgent("proxy", 15333)
-        serfagent.RegisterService("")
+	// register proxy
+	serfagent := register.NewAgent("proxy", 15333)
+	serfagent.RegisterService("")
 
-        // make sure service is up
-        time.Sleep(1 * time.Second)
+	// make sure service is up
+	time.Sleep(1 * time.Second)
 
+	// register dummy adder service
+	serfagent2 := register.NewAgent("adder", 23230)
+	hname, _ := os.Hostname()
+	serfagent2.RegisterService(hname + ":7946")
 
-        // register dummy adder service
-        serfagent2 := register.NewAgent("adder", 23230)
-        hname, _ := os.Hostname()
-        serfagent2.RegisterService(hname + ":7946") 
-     
-        // make sure service is up
-        time.Sleep(10 * time.Second)
+	// make sure service is up
+	time.Sleep(10 * time.Second)
 
-        var registry proxy.Registry 
-        registry.UpdateRegistry()
-        members := registry.GetServicesSlice()
-        
-        if len(members) != 1 {
-                t.Errorf("Number service members %d (should be 1)", len(members))
-                return
-        }
+	var registry proxy.Registry
+	registry.UpdateRegistry()
+	members := registry.GetServicesSlice()
 
-        if members[0] != "adder" {
-                t.Errorf("adder should be the service member")
-                return
-        }        
+	if len(members) != 1 {
+		t.Errorf("Number service members %d (should be 1)", len(members))
+		return
+	}
+
+	if members[0] != "adder" {
+		t.Errorf("adder should be the service member")
+		return
+	}
 }

@@ -1,22 +1,22 @@
 package main
 
 import (
-        "encoding/json"
-	"net/http"
+	"encoding/json"
 	"fmt"
-	"syscall"
+	"github.com/sigu-399/gojsonschema"
+	"math/rand"
+	"net/http"
 	"os"
-        "os/signal"
+	"os/signal"
 	"strconv"
-        "math/rand"
-        "time"
 	"strings"
-        "github.com/sigu-399/gojsonschema"
+	"syscall"
+	"time"
 )
 
 const (
-        staticPath = "/static/"
-        interfacePath = "/interface/"
+	staticPath    = "/static/"
+	interfacePath = "/interface/"
 )
 
 const ramlInterface = `#%%RAML 0.8
@@ -90,29 +90,30 @@ const serviceSchema = `
   "required" : ["num1", "num2"]
 }
 `
+
 func parseURI(r *http.Request, prefix string) ([]string, string, error) {
 	requestType := strings.ToLower(r.Method)
-        prefix = strings.Trim(prefix, "/")
-        path := strings.Trim(r.URL.Path, "/")
-        prefix_list := strings.Split(prefix, "/")
-        url_list := strings.Split(path, "/")
-        var path_list []string   
+	prefix = strings.Trim(prefix, "/")
+	path := strings.Trim(r.URL.Path, "/")
+	prefix_list := strings.Split(prefix, "/")
+	url_list := strings.Split(path, "/")
+	var path_list []string
 
-        if len(prefix_list) > len(url_list) {
-                return path_list, requestType, fmt.Errorf("Incorrectly formatted URI")
-        }
+	if len(prefix_list) > len(url_list) {
+		return path_list, requestType, fmt.Errorf("Incorrectly formatted URI")
+	}
 
-        for i, val := range prefix_list {
-                if val != url_list[i] {
-                        return path_list, requestType, fmt.Errorf("Incorrectly formatted URI")
-                }
-        }
+	for i, val := range prefix_list {
+		if val != url_list[i] {
+			return path_list, requestType, fmt.Errorf("Incorrectly formatted URI")
+		}
+	}
 
-        if len(prefix_list) < len(url_list) {
-                path_list = url_list[len(prefix_list):]
-        }
+	if len(prefix_list) < len(url_list) {
+		path_list = url_list[len(prefix_list):]
+	}
 
-        return path_list, requestType, nil 
+	return path_list, requestType, nil
 }
 
 var webAddress string
@@ -123,134 +124,133 @@ func badRequest(w http.ResponseWriter, msg string) {
 }
 
 func interfaceHandler(w http.ResponseWriter, r *http.Request) {
-        // allow resources to be accessed via ajax
-        w.Header().Set("Content-Type", "application/raml+yaml")
-        w.Header().Set("Access-Control-Allow-Origin", "*")
-        fmt.Fprintf(w, ramlInterface)
+	// allow resources to be accessed via ajax
+	w.Header().Set("Content-Type", "application/raml+yaml")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	fmt.Fprintf(w, ramlInterface)
 }
 
 type AddRequest struct {
-    num1   int
-    num2   int
-    name   string
+	num1 int
+	num2 int
+	name string
 }
 
 type JobResults struct {
-    Results map[string]interface{} 
+	Results map[string]interface{}
 }
 
 var jobResults JobResults
 
 func randomHex() (randomStr string) {
-        randomStr = ""
-        for i := 0; i < 8; i++ {
-                val := rand.Intn(16)
-                randomStr += strconv.FormatInt(int64(val), 16)
-        }
-        return
+	randomStr = ""
+	for i := 0; i < 8; i++ {
+		val := rand.Intn(16)
+		randomStr += strconv.FormatInt(int64(val), 16)
+	}
+	return
 }
 
 func addService(addRequest AddRequest) {
-        time.Sleep(10 * time.Second)
-        result := addRequest.num1 + addRequest.num2
-        jobResults.Results[addRequest.name] = result
+	time.Sleep(10 * time.Second)
+	result := addRequest.num1 + addRequest.num2
+	jobResults.Results[addRequest.name] = result
 }
 
-
 func serviceHandler(w http.ResponseWriter, r *http.Request) {
-        pathlist, requestType, err := parseURI(r, "/")
-        if err != nil || len(pathlist) != 0 {
-                badRequest(w, "Error: incorrectly formatted request")
-                return            
-        }
+	pathlist, requestType, err := parseURI(r, "/")
+	if err != nil || len(pathlist) != 0 {
+		badRequest(w, "Error: incorrectly formatted request")
+		return
+	}
 	if requestType != "post" {
 		badRequest(w, "only supports posts")
-                return
+		return
 	}
 
-        // read json
+	// read json
 	decoder := json.NewDecoder(r.Body)
-        var json_data map[string]interface{}
-        err = decoder.Decode(&json_data)
+	var json_data map[string]interface{}
+	err = decoder.Decode(&json_data)
 
-        // convert schema to json data
-        var schema_data interface {}
-        json.Unmarshal([]byte(serviceSchema), &schema_data)
+	// convert schema to json data
+	var schema_data interface{}
+	json.Unmarshal([]byte(serviceSchema), &schema_data)
 
-        schema, err := gojsonschema.NewJsonSchemaDocument(schema_data)
-        validationResult := schema.Validate(json_data)
-        if !validationResult.IsValid() {
-                badRequest(w, "JSON did not pass validation")
-                return
-        } 
+	schema, err := gojsonschema.NewJsonSchemaDocument(schema_data)
+	validationResult := schema.Validate(json_data)
+	if !validationResult.IsValid() {
+		badRequest(w, "JSON did not pass validation")
+		return
+	}
 
-        var addRequest AddRequest
-        addRequest.num1 = int(json_data["num1"].(float64))
-        addRequest.num2 = int(json_data["num2"].(float64))
-        if err != nil {
-                badRequest(w, "JSON not formatted properly")
-                return
-        }
-       
-        jobid := randomHex()
-        var empty interface{}
-        jobResults.Results[jobid] = empty
-        addRequest.name = jobid
+	var addRequest AddRequest
+	addRequest.num1 = int(json_data["num1"].(float64))
+	addRequest.num2 = int(json_data["num2"].(float64))
+	if err != nil {
+		badRequest(w, "JSON not formatted properly")
+		return
+	}
+
+	jobid := randomHex()
+	var empty interface{}
+	jobResults.Results[jobid] = empty
+	addRequest.name = jobid
 
 	w.Header().Set("Content-Type", "application/json")
-        jsondata, _ := json.Marshal(map[string]string{
-                "result-callback" : "http://" + webAddress + "/jobs/" + jobid,
-        })
-        fmt.Fprintf(w, string(jsondata))
+	jsondata, _ := json.Marshal(map[string]string{
+		"result-callback": "http://" + webAddress + "/jobs/" + jobid,
+	})
+	fmt.Fprintf(w, string(jsondata))
 
-        go addService(addRequest)
+	go addService(addRequest)
 }
 
 func jobHandler(w http.ResponseWriter, r *http.Request) {
-        pathlist, requestType, err := parseURI(r, "/jobs/")
-        if err != nil || len(pathlist) != 1 {
-                badRequest(w, "Error: incorrectly formatted request")
-                    return 
-        }
-        if requestType != "get" {
-            badRequest(w, "only supports gets")
-                return
-        }
-        result, ok := jobResults.Results[(pathlist[0])]
+	pathlist, requestType, err := parseURI(r, "/jobs/")
+	if err != nil || len(pathlist) != 1 {
+		badRequest(w, "Error: incorrectly formatted request")
+		return
+	}
+	if requestType != "get" {
+		badRequest(w, "only supports gets")
+		return
+	}
+	result, ok := jobResults.Results[(pathlist[0])]
 
-        if !ok {
-                badRequest(w, "job does not exist")
-                return
-        }
+	if !ok {
+		badRequest(w, "job does not exist")
+		return
+	}
 
-    	w.Header().Set("Content-Type", "application/json")
-        jsondata, _ := json.Marshal(map[string]interface{}{
-                "result" : result, 
-        })
-        fmt.Fprintf(w, string(jsondata))
+	w.Header().Set("Content-Type", "application/json")
+	jsondata, _ := json.Marshal(map[string]interface{}{
+		"result": result,
+	})
+	fmt.Fprintf(w, string(jsondata))
 }
 
 func Serve(port int) {
-        jobResults.Results = make(map[string]interface{})
+	jobResults.Results = make(map[string]interface{})
 
 	hname, _ := os.Hostname()
-        
-	webAddress = hname + ":" + strconv.Itoa(port)	
-        
-        fmt.Printf("Web server address: %s\n", webAddress)
+
+	webAddress = hname + ":" + strconv.Itoa(port)
+
+	fmt.Printf("Web server address: %s\n", webAddress)
 	fmt.Printf("Running...\n")
 
 	httpserver := &http.Server{Addr: webAddress}
-        
-        // serve out static json schema and raml (allow access)
-        http.HandleFunc(interfacePath, interfaceHandler)
-        
-        // serve out static json schema and raml (allow access)
-        http.HandleFunc("/", serviceHandler)
 
-        http.HandleFunc("/jobs/", jobHandler)
+	// serve out static json schema and raml (allow access)
+	http.HandleFunc(interfacePath, interfaceHandler)
 
-        // exit server if user presses Ctrl-C
+	// serve out static json schema and raml (allow access)
+	http.HandleFunc("/", serviceHandler)
+
+	http.HandleFunc("/jobs/", jobHandler)
+
+	// exit server if user presses Ctrl-C
 	go func() {
 		sigch := make(chan os.Signal)
 		signal.Notify(sigch, os.Interrupt, syscall.SIGTERM)
@@ -259,9 +259,5 @@ func Serve(port int) {
 		os.Exit(0)
 	}()
 
-        httpserver.ListenAndServe()
+	httpserver.ListenAndServe()
 }
-
-
-
-

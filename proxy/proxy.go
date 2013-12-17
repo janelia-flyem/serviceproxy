@@ -2,11 +2,11 @@ package proxy
 
 import (
 	"fmt"
+	"github.com/janelia-flyem/serviceproxy/register"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
-        "github.com/janelia-flyem/serviceproxy/register"
-        "strconv"
 )
 
 type ServiceProxy struct {
@@ -17,17 +17,17 @@ type ServiceProxy struct {
 var rpcAddr string
 
 func init() {
-        hname, _ := os.Hostname()
-        rpcAddr = hname + ":7373"
+	hname, _ := os.Hostname()
+	rpcAddr = hname + ":7373"
 }
 
 func (proxy *ServiceProxy) Run(srcroot string) error {
-        // create agent and launch (no join node is specified)
-        serfagent := register.NewAgent("proxy", proxy.Port)
-        serfagent.Debug = proxy.Debug
-        serfagent.RegisterService("")
+	// create agent and launch (no join node is specified)
+	serfagent := register.NewAgent("proxy", proxy.Port)
+	serfagent.Debug = proxy.Debug
+	serfagent.RegisterService("")
 
-        hname, _ := os.Hostname()
+	hname, _ := os.Hostname()
 	serfaddr := hname + ":" + strconv.Itoa(serfagent.GetSerfPort())
 
 	// address for clients to register (port does not need to be specified
