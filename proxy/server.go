@@ -98,8 +98,8 @@ func execHandler(w http.ResponseWriter, r *http.Request) {
                 return
         }
 
-        registry.updateRegistry()
-        addr, err := registry.getServiceAddr(pathlist[0])
+        registry.UpdateRegistry()
+        addr, err := registry.GetServiceAddr(pathlist[0])
 
         if err != nil {
                 badRequest(w, "error in processing: " + pathlist[0])
@@ -127,8 +127,8 @@ func nodesHandler(w http.ResponseWriter, r *http.Request) {
     
         w.Header().Set("Content-Type", "application/json")
         
-        registry.updateRegistry()
-        nodes := registry.getActiveNodes()
+        registry.UpdateRegistry()
+        nodes := registry.GetActiveNodes()
         
         data := make(map[string]interface{})
         data["nodes"] = nodes
@@ -153,9 +153,9 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                 return
         }
 
-        registry.updateRegistry()
+        registry.UpdateRegistry()
         if len(pathlist) == 0 {
-                members := registry.getServicesSlice()
+                members := registry.GetServicesSlice()
 
                 w.Header().Set("Content-Type", "application/json")
 
@@ -170,7 +170,7 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
                 jsonStr, _ := json.Marshal(data)
                 fmt.Fprintf(w, string(jsonStr))
         } else {
-                addr, err := registry.getServiceAddr(pathlist[0])
+                addr, err := registry.GetServiceAddr(pathlist[0])
 
                 if pathlist[1] == "interface" {
                         if err != nil {

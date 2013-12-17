@@ -59,7 +59,7 @@ type Registry struct {
 	services map[string]*Service
 }
 
-func (r *Registry) updateRegistry() error {
+func (r *Registry) UpdateRegistry() error {
 	// retrieve members that are alive
 	writer := new(MembersWriter)
 	ui := &cli.BasicUi{Writer: writer}
@@ -116,7 +116,7 @@ func (r *Registry) updateRegistry() error {
 	return nil
 }
 
-func (r *Registry) getActiveNodes() []string {
+func (r *Registry) GetActiveNodes() []string {
         var nodes []string
         unique_nodes := make(map[string]bool)
 
@@ -134,7 +134,7 @@ func (r *Registry) getActiveNodes() []string {
         return nodes
 }
 
-func (r *Registry) getServicesSlice() []string {
+func (r *Registry) GetServicesSlice() []string {
 	var services []string
 	for key, _ := range r.services {
 	        services = append(services, key)	
@@ -143,7 +143,7 @@ func (r *Registry) getServicesSlice() []string {
 	return services
 }
 
-func (r* Registry) getServiceAddr(service string) (string, error) {
+func (r* Registry) GetServiceAddr(service string) (string, error) {
         var err error
         _, ok := r.services[service]
         addr := ""
