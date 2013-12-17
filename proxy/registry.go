@@ -66,6 +66,7 @@ func (r *Registry) UpdateRegistry() error {
 	mc := &command.MembersCommand{Ui: ui}
 	var dargs []string
 	dargs = append(dargs, "-status=alive")
+	dargs = append(dargs, "-rpc-addr=" + rpcAddr)
 	mc.Run(dargs)
 
 	mem_str := writer.GetString()
