@@ -22,7 +22,7 @@ const (
 // String representing interface for adder example
 const ramlInterface = `#%%RAML 0.8
 title: Adder Service
-/:
+/jobs:
   post:
     description: "Call service to add two numbers"
     body:
@@ -169,9 +169,9 @@ func addService(addRequest AddRequest) {
 	jobResults.Results[addRequest.name] = result
 }
 
-// serviceHandler handlers post request to "/"
+// serviceHandler handlers post request to "/jobs"
 func serviceHandler(w http.ResponseWriter, r *http.Request) {
-	pathlist, requestType, err := parseURI(r, "/")
+	pathlist, requestType, err := parseURI(r, "/jobs/")
 	if err != nil || len(pathlist) != 0 {
 		badRequest(w, "Error: incorrectly formatted request")
 		return
@@ -221,10 +221,16 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	go addService(addRequest)
 }
 
-// jobHandler gets requests for job status
+// jobHandler gets requests for job status and for creating new jobs
 func jobHandler(w http.ResponseWriter, r *http.Request) {
 	pathlist, requestType, err := parseURI(r, "/jobs/")
-	if err != nil || len(pathlist) != 1 {
+	
+        if requestType == "post" {
+                serviceHandler(w, r)
+                return
+        }
+
+        if err != nil || len(pathlist) != 1 {
 		badRequest(w, "Error: incorrectly formatted request")
 		return
 	}
