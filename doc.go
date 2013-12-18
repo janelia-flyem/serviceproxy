@@ -17,7 +17,7 @@ This will start a web server at the given port on the current machine.
 The command will return the registry address (ADDR) (a different
 port from the web server) used by clients to register their service.
 
-The rest interface specification is in [RAML](http://raml.org) format.
+The rest interface specification is in RAML (http://raml.org) format.
 To view the interface, navigate to
 "127.0.0.1:WEBPORT/interface".
 */

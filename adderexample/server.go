@@ -15,10 +15,11 @@ import (
 )
 
 const (
-	staticPath    = "/static/"
-	interfacePath = "/interface/"
+	// Contain URI location for interface
+        interfacePath = "/interface/"
 )
 
+// String representing interface for adder example
 const ramlInterface = `#%%RAML 0.8
 title: Adder Service
 /:
@@ -78,7 +79,7 @@ title: Adder Service
         body:
           application/raml+yaml:
 `
-
+// String representing the JSON schema for the service call
 const serviceSchema = `
 { "$schema": "http://json-schema.org/schema#",
   "title": "Provide numbers to be added together",
@@ -90,7 +91,7 @@ const serviceSchema = `
   "required" : ["num1", "num2"]
 }
 `
-
+// parseURI is a utility function for retrieving parts of the URI
 func parseURI(r *http.Request, prefix string) ([]string, string, error) {
 	requestType := strings.ToLower(r.Method)
 	prefix = strings.Trim(prefix, "/")
@@ -123,6 +124,8 @@ func badRequest(w http.ResponseWriter, msg string) {
 	http.Error(w, msg, http.StatusBadRequest)
 }
 
+// InterfaceHandler returns the RAML interface for any request at
+// the /interface URI.
 func interfaceHandler(w http.ResponseWriter, r *http.Request) {
 	// allow resources to be accessed via ajax
 	w.Header().Set("Content-Type", "application/raml+yaml")

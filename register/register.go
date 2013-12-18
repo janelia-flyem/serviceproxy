@@ -11,25 +11,39 @@ import (
 )
 
 const (
-	startingPort = 25001
-	buffersize   = 10000
+	// First port checked for availability
+        startingPort = 25001
 
-	// ports for proxy service
+        // Size of the write buffer used with serf
+	buffersize   = 100000
+
+	// Default serf port for proxy service
 	serfPort  = 7946
+
+        // Default serf rpc port for proxy service
 	rpcPort   = 7373
+
+        // Name of the proxy service
 	proxyName = "proxy"
 )
 
+// AgentWriter implements the Writer interface and contains serf output
 type AgentWriter struct {
-	bytes []byte
+	// Contains the last several bytes of serf output
+        bytes []byte
+
+        // If true it will dump output to console
 	debug bool
 }
 
+// Write implements Writer interface and dumps output to buffer
 func (w *AgentWriter) Write(p []byte) (n int, err error) {
 	if w.debug {
 		fmt.Println(string(p))
 	}
 
+        // clears buffer when buffer size is reached
+        // TODO: make buffer a FIFO queue instead
 	if len(w.bytes) > buffersize {
 		w.bytes = make([]byte, 0)
 	}
@@ -41,10 +55,12 @@ func (w *AgentWriter) Write(p []byte) (n int, err error) {
 	return n, err
 }
 
+// GetString returns the string value of the written bytes
 func (w *AgentWriter) GetString() string {
 	return string(w.bytes[:])
 }
 
+// SerfAgent contains information neeeded to call serf facilities
 type SerfAgent struct {
 	name     string
 	port     int
@@ -53,10 +69,14 @@ type SerfAgent struct {
 	serfPort int
 	rpcPort  int
 
+        // Print debug output
 	Debug    bool
+
+        // False by default, if true, a new process is not created for the agent
 	Blocking bool
 }
 
+// NewAgent creates an agent using specific naming conventions
 func NewAgent(name string, port int) *SerfAgent {
 	agent := &SerfAgent{name: name, port: port, serfPort: -1,
 		rpcPort: -1, Debug: false, Blocking: false}
@@ -64,6 +84,7 @@ func NewAgent(name string, port int) *SerfAgent {
 	agent.haddr = hname
 	agent.serfname = name + "#" + hname + ":" + strconv.Itoa(port)
 
+        // specialized check for proxy service registration: use default ports
 	if name == proxyName {
 		agent.serfPort = serfPort
 		agent.rpcPort = rpcPort
@@ -72,10 +93,14 @@ func NewAgent(name string, port int) *SerfAgent {
 	return agent
 }
 
+// GetSerfPort returns the port number that the agent is (will be) registered at
 func (s *SerfAgent) GetSerfPort() int {
 	return s.serfPort
 }
 
+// RegisterService calls serf and launches an agent.
+// It join the serf network at the node specified by the registry.  If
+// registry is an empty string, the agent does not join other nodes.
 func (s *SerfAgent) RegisterService(registry string) error {
 	// place serf output in a debug buffer
 	writer := &AgentWriter{debug: s.Debug}
@@ -101,6 +126,9 @@ func (s *SerfAgent) RegisterService(registry string) error {
 	return nil
 }
 
+// UnRegisterService stops a previously launches serf agent.
+// This function is a blocking call and is generally only callable
+// if SerfAgent was initially registered.
 func (s *SerfAgent) UnRegisterService() error {
 	writer := &AgentWriter{debug: s.Debug}
 
@@ -118,11 +146,22 @@ func (s *SerfAgent) UnRegisterService() error {
 	dargs = append(dargs, "-rpc-addr="+s.haddr+":"+strconv.Itoa(s.rpcPort))
 	ac.Run(dargs)
 
+        // re-initialize ports if not a proxy service	
+        if s.name != proxyName {
+                s.serfPort = -1
+                s.rpcPort = -1
+        }
+
 	return nil
 }
 
+// launchAgent actually calls the serf interface.
+// By default, it is called as a go process.  Except for a proxy service,
+// it will keep launching the agent until a valid port combination is tried.
 func (s *SerfAgent) launchAgent(ac *agent.Command, dargs []string, writer *AgentWriter) {
 	hasdefault := false
+        
+        // should always be true if it is not a proxy
 	if s.serfPort != -1 || s.rpcPort != -1 {
 		hasdefault = true
 	}
