@@ -9,19 +9,23 @@ import (
 	"syscall"
 )
 
+// ServiceProxy contains information on proxy server
 type ServiceProxy struct {
 	Port  int
 	Debug bool
 }
 
+// Contains the RPC address for the serf agent attached to the proxy server
 var rpcAddr string
 
+// init sets up the default RPC address for the serf agent
 func init() {
 	hname, _ := os.Hostname()
 	rpcAddr = hname + ":7373"
 }
 
-func (proxy *ServiceProxy) Run(srcroot string) error {
+// Run creates the serf agent and launches the http server
+func (proxy *ServiceProxy) Run() error {
 	// create agent and launch (no join node is specified)
 	serfagent := register.NewAgent("proxy", proxy.Port)
 	serfagent.Debug = proxy.Debug
@@ -44,5 +48,5 @@ func (proxy *ServiceProxy) Run(srcroot string) error {
 	}()
 
 	// create web server
-	return Serve(proxy.Port, srcroot)
+	return Serve(proxy.Port)
 }

@@ -40,8 +40,12 @@ func main() {
 		os.Exit(0)
 	}
 
+	// creates new serf agent with a node name comprised of the service name and port
 	serfagent := register.NewAgent(flag.Arg(0), port)
 
+	// service call should be blocking -- will run until killed
 	serfagent.Blocking = true
+
+	// service registraters to service registry address
 	serfagent.RegisterService(flag.Arg(2))
 }

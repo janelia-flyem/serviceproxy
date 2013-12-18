@@ -16,7 +16,7 @@ import (
 
 const (
 	// Contain URI location for interface
-        interfacePath = "/interface/"
+	interfacePath = "/interface/"
 )
 
 // String representing interface for adder example
@@ -79,6 +79,7 @@ title: Adder Service
         body:
           application/raml+yaml:
 `
+
 // String representing the JSON schema for the service call
 const serviceSchema = `
 { "$schema": "http://json-schema.org/schema#",
@@ -91,6 +92,7 @@ const serviceSchema = `
   "required" : ["num1", "num2"]
 }
 `
+
 // parseURI is a utility function for retrieving parts of the URI
 func parseURI(r *http.Request, prefix string) ([]string, string, error) {
 	requestType := strings.ToLower(r.Method)
@@ -117,8 +119,10 @@ func parseURI(r *http.Request, prefix string) ([]string, string, error) {
 	return path_list, requestType, nil
 }
 
+// webAddress is the http address for the server
 var webAddress string
 
+// badRequest is a halper for printing an http error message
 func badRequest(w http.ResponseWriter, msg string) {
 	fmt.Println(msg)
 	http.Error(w, msg, http.StatusBadRequest)
@@ -133,18 +137,21 @@ func interfaceHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, ramlInterface)
 }
 
+// AddRequest is the datastructure to be populated with the JSON input
 type AddRequest struct {
 	num1 int
 	num2 int
 	name string
 }
 
+// JobResults contains all the results from service requests in memory
 type JobResults struct {
 	Results map[string]interface{}
 }
 
 var jobResults JobResults
 
+// randomHex computes a random hash for storing service results
 func randomHex() (randomStr string) {
 	randomStr = ""
 	for i := 0; i < 8; i++ {
@@ -154,12 +161,15 @@ func randomHex() (randomStr string) {
 	return
 }
 
+// addService is the actual 'service' for computing addition
 func addService(addRequest AddRequest) {
+	// wait 10 seconds till result is computed
 	time.Sleep(10 * time.Second)
 	result := addRequest.num1 + addRequest.num2
 	jobResults.Results[addRequest.name] = result
 }
 
+// serviceHandler handlers post request to "/"
 func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	pathlist, requestType, err := parseURI(r, "/")
 	if err != nil || len(pathlist) != 0 {
@@ -180,6 +190,7 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	var schema_data interface{}
 	json.Unmarshal([]byte(serviceSchema), &schema_data)
 
+	// validate json schema
 	schema, err := gojsonschema.NewJsonSchemaDocument(schema_data)
 	validationResult := schema.Validate(json_data)
 	if !validationResult.IsValid() {
@@ -206,9 +217,11 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	})
 	fmt.Fprintf(w, string(jsondata))
 
+	// non-blocking call to actual service
 	go addService(addRequest)
 }
 
+// jobHandler gets requests for job status
 func jobHandler(w http.ResponseWriter, r *http.Request) {
 	pathlist, requestType, err := parseURI(r, "/jobs/")
 	if err != nil || len(pathlist) != 1 {
@@ -233,11 +246,11 @@ func jobHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(jsondata))
 }
 
+// Serve is the main server function call that creates http server and handlers
 func Serve(port int) {
 	jobResults.Results = make(map[string]interface{})
 
 	hname, _ := os.Hostname()
-
 	webAddress = hname + ":" + strconv.Itoa(port)
 
 	fmt.Printf("Web server address: %s\n", webAddress)

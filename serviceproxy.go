@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/janelia-flyem/serviceproxy/proxy"
 	"os"
-	"strings"
 )
 
 // Arbitrary port chosen as the default
@@ -40,14 +39,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	// GOPATH needed to access static resources.  (To be removed)
-	srcroot := os.Getenv("GOPATH")
-	if srcroot == "" || strings.Contains(srcroot, ":") {
-		fmt.Printf("GOPATH must be set to current src path\n")
-		os.Exit(0)
-	}
-
 	proxy := proxy.ServiceProxy{Port: *portNum, Debug: *debugSerf}
 	// launch tool to create proxy serf agent and web server
-	proxy.Run(srcroot)
+	proxy.Run()
 }

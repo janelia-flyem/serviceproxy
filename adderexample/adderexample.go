@@ -38,6 +38,7 @@ func main() {
 		os.Exit(0)
 	}
 
+	// creates adder service and points to first argument
 	serfagent := register.NewAgent("adder", *portNum)
 	serfagent.RegisterService(flag.Arg(0))
 

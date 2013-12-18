@@ -71,6 +71,7 @@ Beyond these bare requirements, we recommend the following:
 * Define a REST interface using RAML.  This RAML should be accessible via the /interface/interface.raml URI.
 * Non-binary request and response data should use JSON format when possible
 * Specific JSON mime-types should be defined using (JSON schema)[http://json-schema.org/] for request and response data
+* The name of the json schema should also define the mimetype name, so that "<schema>.json" should be of mime type "<schema>+json"
 * Potentially reusable JSON schema should be saved in some global repository that is CORS-enabled and included in a RAML specification using !include syntax.  Janelia maintains a JSON schema directory at: http://janelia-flyem.github.io/schema (not currently CORS enabled)
 * Calls to services should be non-blocking and immediately return a callback URL(s), which will indicate the service status or provide the result(s)
 * JSON schema validators should be used to validate JSON data
@@ -117,6 +118,10 @@ specific formatting
 
 ##TODO
 
+* Better decouple serf service agent wrapper in current implementation
+* Support redirection protocols that favor certain nodes as appropriate (maybe each service can provide information)
+* Enable a system of versioning; the same service with different versions should be distinguished
+* Support wrapping serf to check services for busy states
 * Have serviceproxy act as an intermediary between users and the services (beyond redirection)
 * Allow for some basic orchestration between services
 * Enable data encryption and authentication for services in non-internal networks

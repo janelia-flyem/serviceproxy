@@ -18,15 +18,18 @@ type Service struct {
 	Addresses []string
 }
 
+// NewService creates a Service instance
 func NewService(name string) *Service {
 	return &Service{name: name}
 }
 
+// addAddress adds a provided node to the Service
 func (s *Service) addAddress(addr string) error {
 	s.Addresses = append(s.Addresses, addr)
 	return nil
 }
 
+// getAddress returns a random node that implements the Service
 func (s *Service) getAddress() (address string, err error) {
 	err = nil
 	address = ""
@@ -39,11 +42,13 @@ func (s *Service) getAddress() (address string, err error) {
 	return address, err
 }
 
-type MembersWriter struct {
+// MembersWrite handles serf output (implements Writer interface)
+type MembersWrite struct {
 	bytes []byte
 }
 
-func (w *MembersWriter) Write(p []byte) (n int, err error) {
+// Write implements the Writer interface and handles serf output
+func (w *MembersWrite) Write(p []byte) (n int, err error) {
 	n = len(p)
 	w.bytes = append(w.bytes, p...)
 	err = nil
@@ -51,17 +56,20 @@ func (w *MembersWriter) Write(p []byte) (n int, err error) {
 	return n, err
 }
 
-func (w *MembersWriter) GetString() string {
+// GetString retrieves the string in MembersWrite
+func (w *MembersWrite) GetString() string {
 	return string(w.bytes[:])
 }
 
+// Registry contains the mapping of service names to Service objects
 type Registry struct {
 	services map[string]*Service
 }
 
+// UpdateRegistry computes attached services from serf network
 func (r *Registry) UpdateRegistry() error {
 	// retrieve members that are alive
-	writer := new(MembersWriter)
+	writer := new(MembersWrite)
 	ui := &cli.BasicUi{Writer: writer}
 	mc := &command.MembersCommand{Ui: ui}
 	var dargs []string
@@ -73,6 +81,8 @@ func (r *Registry) UpdateRegistry() error {
 	mems := strings.Split(strings.Trim(mem_str, "\n"), "\n")
 
 	r.services = make(map[string]*Service)
+
+	// parse members from serf output
 	for _, member := range mems {
 		fields := strings.Fields(member)
 		serviceport := strings.Split(fields[0], "#")
@@ -94,6 +104,9 @@ func (r *Registry) UpdateRegistry() error {
 			fmt.Errorf("incorrect number of fields for service")
 			continue
 		}
+		// TODO: should make sure that the IP address of serf agent
+		// and the encoded service name are the same
+
 		//		address_fields := strings.Split(fields[1], ":")
 		//		serf_address := address_fields[0]
 
@@ -111,12 +124,14 @@ func (r *Registry) UpdateRegistry() error {
 			r.services[service_name] = service
 		}
 
+		// add new node address to service
 		service.addAddress(complete_address_name)
 	}
 
 	return nil
 }
 
+// GetActiveNodes returns all nodes associates with a Service
 func (r *Registry) GetActiveNodes() []string {
 	var nodes []string
 	unique_nodes := make(map[string]bool)
@@ -135,6 +150,7 @@ func (r *Registry) GetActiveNodes() []string {
 	return nodes
 }
 
+// GetServicesSlice returns all services associated with the Registry
 func (r *Registry) GetServicesSlice() []string {
 	var services []string
 	for key, _ := range r.services {
@@ -144,6 +160,7 @@ func (r *Registry) GetServicesSlice() []string {
 	return services
 }
 
+// GetServiceAddr returns node for a given service (if it exists)
 func (r *Registry) GetServiceAddr(service string) (string, error) {
 	var err error
 	_, ok := r.services[service]
