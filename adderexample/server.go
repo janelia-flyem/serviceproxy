@@ -193,7 +193,7 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 	// validate json schema
 	schema, err := gojsonschema.NewJsonSchemaDocument(schema_data)
 	validationResult := schema.Validate(json_data)
-	if !validationResult.IsValid() {
+	if !validationResult.Valid() {
 		badRequest(w, "JSON did not pass validation")
 		return
 	}
