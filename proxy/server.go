@@ -231,9 +231,14 @@ func SourceHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, srcPATH+r.URL.Path[1:])
 }
 
+// serveHTML loads an app that shows all the active services
+func serveHTML(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintf(w, htmldata) 
+}
+
 // Serve creates http server and sets handlers
 func Serve(port int) error {
-	hname, _ := os.Hostname()
+        hname, _ := os.Hostname()
 	webAddress := hname + ":" + strconv.Itoa(port)
 
 	fmt.Printf("Web server address: %s\n", webAddress)
@@ -245,6 +250,8 @@ func Serve(port int) error {
 	http.HandleFunc(nodesPath, nodesHandler)
 	http.HandleFunc(execPath, execHandler)
 	http.HandleFunc(interfacePath, interfaceHandler)
+
+        http.HandleFunc("/", serveHTML)
 
 	// should be only called internally?
 
