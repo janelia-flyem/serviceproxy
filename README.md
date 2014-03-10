@@ -1,6 +1,4 @@
-![Picture](http://janelia.org/sites/all/themes/janelia_ninesixty/images/nav/janelia_logo_hover.png)
-# Service Proxy Tool
-
+# Service Proxy Tool ![Picture](http://janelia.org/sites/all/themes/janelia_ninesixty/images/nav/janelia_logo_hover.png)
 [![Build Status](https://drone.io/github.com/janelia-flyem/serviceproxy/status.png)](https://drone.io/github.com/janelia-flyem/serviceproxy/latest)
 
 This go package provides a server that registers different services that
