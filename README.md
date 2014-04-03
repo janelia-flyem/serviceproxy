@@ -46,6 +46,7 @@ The rest interface specification is in [RAML](http://raml.org) format.
 To view the interface, navigate to
 "127.0.0.1:WEBPORT/interface".  To view the RAML interface, we use
 the [api-console](https://github.com/mulesoft/api-console) javascript-based viewer.
+(The RAML text can be found at proxy/interface.go.)
 
 The adderexample service can be launched by:
 
