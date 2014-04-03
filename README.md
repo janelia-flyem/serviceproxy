@@ -72,7 +72,7 @@ Beyond these bare requirements, we recommend the following:
 * Specific JSON mime-types should be defined using (JSON schema)[http://json-schema.org/] for request and response data
 * The name of the json schema should also define the mimetype name, so that "<schema>.json" should be of mime type "<schema>+json"
 * Potentially reusable JSON schema should be saved in some global repository that is CORS-enabled and included in a RAML specification using !include syntax.  Janelia maintains a JSON schema directory at: http://janelia-flyem.github.io/schema (not currently CORS enabled)
-* Calls to services should be non-blocking and immediately return a callback URL(s), which will indicate the service status or provide the result(s)
+* Calls to services should be non-blocking if they require non-trivial computation and immediately return a callback URL(s) (unless otherwise noted in the interface), which will indicate the service status or provide the result(s)
 * JSON schema validators should be used to validate JSON data
 
 The adderexample follows all of these suggestions (except that no global JSON schema is used).
