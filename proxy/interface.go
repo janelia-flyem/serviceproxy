@@ -46,6 +46,30 @@ baseUri: /
                   },
                   "required" : ["service-location"] 
                 }
+  /{service}/nodes:
+    get:
+      description: "Finds all nodes for the requested service"
+      responses:
+        200:
+          body:
+            application/json:
+              schema: |
+                { "$schema": "http://json-schema.org/schema#",
+                  "title" : "Retrieves all nodes for a given service",
+                  "type" : "object",
+                  "properties" : {
+                    "service-locations" : {
+                      "description" : "Server addresses or null if there are no addresses",
+                      "type" : "array",
+                      "uniqueItems" : true,
+                      "items" : {
+                        "type" : "string"
+                      }
+                    }
+                  },
+                  "required" : ["service-locations"] 
+                }
+
   /{service}/interface:
     get:
       description: "Shows the RAML interface of the given service. The service must retrieve a RAML for /interface"

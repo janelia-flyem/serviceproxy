@@ -218,6 +218,17 @@ func serviceHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			jsonStr, _ := json.Marshal(data)
 			fmt.Fprintf(w, string(jsonStr))
+		} else if pathlist[1] == "nodes" { // retrieve all nodes implementing interface
+			addrs, err := registry.GetServiceAddrs(pathlist[0])
+			w.Header().Set("Content-Type", "application/json")
+			var data map[string]interface{}
+			if err != nil {
+				data = map[string]interface{}{"service-locations": nil}
+			} else {
+				data = map[string]interface{}{"service-locations": addrs}
+			}
+			jsonStr, _ := json.Marshal(data)
+			fmt.Fprintf(w, string(jsonStr))
 		} else {
 			badRequest(w, "Bad request for service: "+pathlist[0])
 		}
@@ -233,12 +244,12 @@ func SourceHandler(w http.ResponseWriter, r *http.Request) {
 
 // serveHTML loads an app that shows all the active services
 func serveHTML(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprintf(w, htmldata) 
+	fmt.Fprintf(w, htmldata)
 }
 
 // Serve creates http server and sets handlers
 func Serve(port int) error {
-        hname, _ := os.Hostname()
+	hname, _ := os.Hostname()
 	webAddress := hname + ":" + strconv.Itoa(port)
 
 	fmt.Printf("Web server address: %s\n", webAddress)
@@ -251,7 +262,7 @@ func Serve(port int) error {
 	http.HandleFunc(execPath, execHandler)
 	http.HandleFunc(interfacePath, interfaceHandler)
 
-        http.HandleFunc("/", serveHTML)
+	http.HandleFunc("/", serveHTML)
 
 	// should be only called internally?
 

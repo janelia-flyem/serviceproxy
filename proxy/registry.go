@@ -160,6 +160,21 @@ func (r *Registry) GetServicesSlice() []string {
 	return services
 }
 
+// GetServiceAddrs returns nodes for a given service (if it exists)
+func (r *Registry) GetServiceAddrs(service string) ([]string, error) {
+	var err error
+	_, ok := r.services[service]
+	var addrs []string
+	if ok {
+		serviceInfo := r.services[service]
+		addrs = serviceInfo.Addresses
+	} else {
+		err = fmt.Errorf("Service not in registry: " + service)
+	}
+
+	return addrs, err
+}
+
 // GetServiceAddr returns node for a given service (if it exists)
 func (r *Registry) GetServiceAddr(service string) (string, error) {
 	var err error
